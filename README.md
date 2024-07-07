@@ -36,7 +36,10 @@ sudo systemd-resolve --flush-caches
 #
 
 ### Step 2: Configure /etc/resolv.conf
-Edit the `/etc/resolv.conf` file to specify Cloudflare's DNS servers:
+Edit the `/etc/resolv.conf` file and make minimal changes, ensure it only includes essential settings like
+🟡 It is crucial to maintain the default nameserver IP address as shown in your default settings.
+
+
 ```bash
 sudo nano /etc/resolv.conf
 ```
@@ -62,9 +65,11 @@ Ensure the file contains only these lines:
 # See man:systemd-resolved.service(8) for details about the supported modes of
 # operation for /etc/resolv.conf.
 
+# Basic options for DNS resolution
 options dnssec dnssec-ok edns0 trust-ad rotate no-check-names inet6 timeout 2
+# Use systemd-resolved's local DNS stub resolver
 nameserver 127.0.0.53
-options edns0 trust-ad
+# Specify default domain for DNS search (optional)
 search .
 
 ```
