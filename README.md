@@ -459,9 +459,10 @@ To ensure that the WebCRT configuration remains disabled and starts automaticall
 sudo nano /Library/LaunchDaemons/com.yourusername.pfload.plist
 ```
 #
-2. Paste the following XML content into the nano editor. This XML defines a launch daemon that reloads PF at system startup:
-   
-  Replace com.`yourusername`.pfload with a unique identifier for your launch daemon.
+2. Paste the following XML content into the nano editor.
+  
+   This XML defines a launch daemon that reloads PF at system startup
+   replace **`yourusername`** with your actual macOS **`username`**
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -487,21 +488,29 @@ sudo nano /Library/LaunchDaemons/com.yourusername.pfload.plist
 Save and exit the editor (Ctrl+X, then Y to confirm, and Enter.
 #
 3. Set Permissions on the Launch Daemon File
-Set appropriate permissions on the launch daemon file you just created:
+   
+  Set appropriate permissions on the launch daemon file you just created
+  replace **`yourusername`** with your actual macOS **`username`**
 ```bash
 sudo chown root:wheel /Library/LaunchDaemons/com.yourusername.pfload.plist
 sudo chmod 644 /Library/LaunchDaemons/com.yourusername.pfload.plist
 ```
-
-sudo nano /Library/LaunchDaemons/com.iman.pfload.plist
-
-
-sudo chown root:wheel /Library/LaunchDaemons/com.iman.pfload.plist
-sudo chmod 644 /Library/LaunchDaemons/com.iman.pfload.plist
-
-
-
 #
+4. Load the Launch Daemon
+   
+  Load the launch daemon using the launchctl command
+  replace **`yourusername`** with your actual macOS **`username`**
+```bash
+sudo launchctl load /Library/LaunchDaemons/com.yourusername.pfload.plist
+```
+sudo launchctl load /Library/LaunchDaemons/com.iman.pfload.plist
+#
+5. Verify and Test
+   
+  After rebooting your Mac, Open Terminal and check the PF status to ensure it's enabled and your rules are applied:
+```bash
+sudo pfctl -sr
+```
 
 These steps will effectively block WebRTC leaks using PF on a macOS or Linux system.
 This will help protect the real IP address when using a VPN and enhance online privacy.
