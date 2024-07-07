@@ -1,5 +1,7 @@
 # DNS-WebRTC-Leak-Shield
-_DNS &amp; WebRTC Leak Shield - Protecting Your Online Privacy_
+_DNS &amp; WebRTC Leak Shield -
+Protecting online privacy requires guarding against DNS and WebRTC leaks, potential vulnerabilities that can unintentionally expose real IP addresses.
+This guide offers straightforward methods and tools to prevent these leaks across various platforms and environments.
 _________________________________________________________________
 
 <details>
