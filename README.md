@@ -15,9 +15,9 @@ Prerequisites
 
   > - You should have root or sudo access to your Linux system.
   > - Basic knowledge of terminal commands.
-_________________________________________________________________
+#
 
-### ▶ Step 1: Backup Current Configuration
+### Step 1: Backup Current Configuration
 Before making any changes, it's crucial to back up your current DNS configuration:
 _This ensures you can revert back if needed._
 ```bash
@@ -34,7 +34,7 @@ sudo systemd-resolve --flush-caches
 
 #
 
-### ▶ Step 2: Configure /etc/resolv.conf
+### Step 2: Configure /etc/resolv.conf
 Edit the `/etc/resolv.conf` file to specify Cloudflare's DNS servers:
 ```bash
 sudo nano /etc/resolv.conf
@@ -81,7 +81,7 @@ nameserver 2606:4700:4700::1001
 Save and exit the editor (Ctrl+X, Y, Enter).
 #
 
-### ▶ Step 3: Prevent Overwriting of /etc/resolv.conf
+### Step 3: Prevent Overwriting of /etc/resolv.conf
 Protect `/etc/resolv.conf` from being overwritten by setting the immutable attribute:
 
 🚩 This command securely **`locks the file`** , prevents other programs from modifying  it
@@ -108,7 +108,7 @@ sudo chattr -i /etc/resolv.conf
 
 #
 
-### ▶ Step 4: Configure systemd-resolved (Optional)
+### Step 4: Configure systemd-resolved (Optional)
 If your VPS uses `systemd-resolved`, configure it to use Cloudflare's DNS servers:
 ```bash
 sudo nano /etc/systemd/resolved.conf
@@ -176,7 +176,7 @@ sudo systemctl restart systemd-resolved
 
 #
 
-### ▶ Step 5: Verify DNS Configuration
+### Step 5: Verify DNS Configuration
 Verify that DNS resolution is correctly using Cloudflare's servers:
 Ensure the output shows queries resolved via 1.1.1.1 and 1.0.0.1.
 ```bash
@@ -185,7 +185,7 @@ nslookup example.com
 
 #
 
-### ▶ Step 6: Persistent Configuration Across Reboots
+### Step 6: Persistent Configuration Across Reboots
 To ensure these settings persist across reboots, follow these steps:
 
 Protect `/etc/resolv.conf`
@@ -207,7 +207,7 @@ _________________________________________________________________
 ## 🔴 Reverting to Original VPS Settings
 
 
-### ▶ Step 1: Restore Original DNS Configuration
+### Step 1: Restore Original DNS Configuration
 To revert to the original VPS DNS settings:
 
 ▶ Remove Immutable Attribute:
@@ -244,6 +244,49 @@ _________________________________________________________________
 _________________________________________________________________
 <details>
 <summary> WebRTC Leak Shield (Server Side) ➡️ Click to Open </summary>
+  
+Introduction: This guide will help you block WebRTC traffic using iptables and ufw on a Linux system. WebRTC (Web Real-Time Communication) is often used for video conferencing and peer-to-peer communication, but it can expose your IP address even when using a VPN. Blocking WebRTC traffic can help enhance your privacy.
+
+Prerequisites
+
+  > - You should have root or sudo access to your Linux system.
+  > - Basic knowledge of terminal commands.
+#
+### Step 1: Backing Up Current Firewall Rules
+Before making any changes, it's important to back up your current iptables and UFW rules.
+
+## Backup iptables Rules:
+
+
+
+
+# Block WebRTC traffic using iptables
+echo "Configuring iptables..."
+
+## TCP Section
+
+# Block WebRTC TCP Ports 10000 to 20000 for IPv4
+sudo iptables -A OUTPUT -p tcp --dport 10000:20000 -j REJECT
+
+## UDP Section
+
+# Block WebRTC UDP Ports 3478, 5349, 19302 for IPv4
+sudo iptables -A OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j REJECT
+
+# Block WebRTC UDP Ports 3478, 5349, 19302 for IPv6
+sudo ip6tables -A OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j REJECT
+
+# Save and apply iptables rules
+sudo iptables-save > /etc/iptables/rules.v4
+sudo ip6tables-save > /etc/iptables/rules.v6
+
+# Restore rules to ensure they are applied
+sudo iptables-restore < /etc/iptables/rules.v4
+sudo ip6tables-restore < /etc/iptables/rules.v6
+
+# Start iptables services
+sudo service iptables start
+sudo systemctl start iptables
 
 
 </details>
