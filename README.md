@@ -481,6 +481,95 @@ These steps will effectively block WebRTC leaks using the Windows Command Prompt
 
 </details>
 
+_________________________________________________________________
+
+
+<details>
+<summary> WebRTC Leak Shield (Browser Extensions) ➡️ Click to Open </summary>
+
+### Browser extensions WebRTCLeak Shield
+Browser extensions can be used to block WebRTC leaks. This guide provides step-by-step instructions for blocking WebRTC leaks using popular browser extensions.
+
+
+
+## Google Chrome
+Since WebRTC cannot be disabled in Chrome (desktop), add-ons are the only option (for those who do not want to just give up on using Chrome).
+
+> [Google Chrome - WebRTC Block Extension](https://chromewebstore.google.com/detail/webrtc-leak-shield/bppamachkoflopbagkdoflbgfjflfnfl?hl=en)
+
+#
+
+**Disable Chrome WebRTC on Android**
+
+On your Android device, open the URL chrome://flags/#disable-webrtc in Chrome.
+Scroll down and find “WebRTC STUN origin header” – then disable it. For safe measure, you can also disable the WebRTC Hardware Video Encoding/Decoding options, though it may not be necessary.
+
+
+![Screenshot 2024-07-07 at 09 52 39](https://github.com/Phoenix-999/DNS-WebRTC-Leak-Shield/assets/127796122/bb20d96e-e82d-47d0-981a-5691ff27c75f)
+
+#
+
+## Firefox browsers
+Disabling WebRTC using popular browser extensions.
+
+> [Mozilla Firefox - WebRTC Block Extension](https://addons.mozilla.org/en-GB/firefox/addon/webrtc-leak-shield/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)
+
+Disabling WebRTC is very simple in Firefox. First, type about:config into the URL bar and hit enter. Then, agree to the warning message and click the continue button.
+
+![Screenshot 2024-07-07 at 09 48 57](https://github.com/Phoenix-999/DNS-WebRTC-Leak-Shield/assets/127796122/1846ae57-e17c-48d6-b1a0-e5e56afaa0ef)
+
+Then, in the search box type “media.peerconnection.enabled“. Double click the preference name to change the value to “false“.
+
+![Screenshot 2024-07-07 at 09 49 27](https://github.com/Phoenix-999/DNS-WebRTC-Leak-Shield/assets/127796122/16943af1-dd3c-4918-8c56-c31b6ec03ddc)
+
+WebRTC is now disabled in Firefox and you won’t have to worry about WebRTC leaks.
+
+#
+
+## Safari macOS & iOS 
+
+WebRTC leaks have traditionally not been an issue with Safari browsers (on Mac OS and iOS devices).
+By default, Safari should have WebRTC enabled. There are no built-in settings to enable or disable WebRTC in Safari, as it is always enabled in modern versions of the browser.
+
+</details>
+
+_________________________________________________________________
+
+
+<details>
+<summary> Test for DNS & WebRTC Leaks </summary>
+
+## Testing the DNS & WebRTC Leaks
+
+Introduction :After blocking WebRTC leaks using firewall rules or browser extensions, it is essential to verify that the setup is effective.
+Ensuring your VPN or firewall settings effectively block DNS and WebRTC leaks is crucial for maintaining online privacy.
+Several online tools can help test for WebRTC leaks. This guide explains how to use these websites to ensure there are no leaks.
+
+  > - [Dnsleaktest.com](https://www.dnsleaktest.com/)
+  > 
+  > - [ipleak.net](https://ipleak.net/)
+  > 
+  > - [Surfshark.com](https://surfshark.com/dns-leak-test)
+  > 
+  > - [Browserleaks](https://browserleaks.com/)
+
+
+
+</details>
+
+_________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
