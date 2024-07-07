@@ -421,6 +421,7 @@ Press Enter to confirm the file name.
 Reload the PF configuration to apply the new rules using the following command
 ```bash
 sudo pfctl -f /etc/pf.conf
+sudo pfctl -e
 ```
 
 ### Step 6: Verify the Rules
