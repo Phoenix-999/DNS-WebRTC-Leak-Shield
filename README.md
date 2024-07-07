@@ -37,6 +37,7 @@ sudo systemd-resolve --flush-caches
 
 ### Step 2: Configure /etc/resolv.conf
 Edit the `/etc/resolv.conf` file and make minimal changes, ensure it only includes essential settings like
+
 🟡 It is crucial to maintain the default nameserver IP address as shown in your default settings.
 
 
