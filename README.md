@@ -63,20 +63,9 @@ Ensure the file contains only these lines:
 # operation for /etc/resolv.conf.
 
 options dnssec dnssec-ok edns0 trust-ad rotate no-check-names inet6 timeout 2
-options tls-ca-file /etc/ssl/certs/ca-certificates.crt
-options tls-cert-file /etc/cloudflared/cert.pem
-options tls-key-file /etc/cloudflared/key.pem
-options dnssec-validation yes
-options edns-client-subnet 24
-options cache-size 1000
-options cache-min-ttl 300
-options cache-max-ttl 3600
-nameserver 1.1.1.1
-nameserver 2606:4700:4700::1111
-nameserver 1.0.0.1
-nameserver 2606:4700:4700::1001
-#options log-facility local0
-#options log-level 1
+nameserver 127.0.0.53
+options edns0 trust-ad
+search .
 
 ```
 Save and exit the editor (Ctrl+X, Y, Enter).
