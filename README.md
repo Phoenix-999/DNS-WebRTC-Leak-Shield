@@ -10,6 +10,11 @@ _________________________________________________________________
 Securing Your VPS with Cloudflare DNS on Linux
 
 Introduction: Securing your VPS server by directing DNS queries through trusted servers like Cloudflare's is essential for enhancing security, ensuring a secure connection, and preventing DNS leaks. Follow these detailed steps to configure your Linux-based VPS to exclusively use Cloudflare DNS.
+
+Prerequisites
+
+  > - You should have root or sudo access to your Linux system.
+  > - Basic knowledge of terminal commands.
 _________________________________________________________________
 
 ### ▶ Step 1: Backup Current Configuration
@@ -35,16 +40,6 @@ Edit the `/etc/resolv.conf` file to specify Cloudflare's DNS servers:
 sudo nano /etc/resolv.conf
 ```
 Ensure the file contains only these lines:
-```conf
-options dnssec dnssec-ok edns0 trust-ad rotate no-check-names inet6 timeout 2
-nameserver 1.1.1.1
-nameserver 2606:4700:4700::1111
-nameserver 1.0.0.1
-nameserver 2606:4700:4700::1001
-
-```
-
-OR 
 ```conf                                           
 # This is /run/systemd/resolve/stub-resolv.conf managed by man:systemd-resolved(8).
 # Do not edit.
@@ -119,17 +114,6 @@ If your VPS uses `systemd-resolved`, configure it to use Cloudflare's DNS server
 sudo nano /etc/systemd/resolved.conf
 ```
 Add or update these lines:
-```conf
-[Resolve]
-
-DNS=1.1.1.1 1.0.0.1 2606:4700:4700::1111 2606:4700:4700::1001
-DNSOverTLS=yes
-DNSSEC=yes
-Cache=yes
-CacheFromLocalhost=yes
-ReadEtcHosts=yes
-```
-OR
 
 ```conf
 [Resolve]
@@ -266,8 +250,14 @@ This process provides the flexibility to revert configurations as needed, ensuri
 
 </details>
 
+_________________________________________________________________
+_________________________________________________________________
+_________________________________________________________________
+<details>
+<summary> WebRTC Leak Shield (Server Side) ➡️ Click to Open </summary>
 
 
+</details>
 
 
 
