@@ -1,12 +1,11 @@
 # DNS-WebRTC-Leak-Shield
-DNS &amp; WebRTC Leak Shield - Protecting Your Online Privacy
-
+_DNS &amp; WebRTC Leak Shield - Protecting Your Online Privacy_
 _________________________________________________________________
 
 <details>
 <summary> DNS Leak Shield (Server Side) ➡️ Click to Open </summary>
 
-## DNS-Leak-Shield
+## DNS Leak Shield for VPS Server
 Securing Your VPS with Cloudflare DNS on Linux
 
 Introduction: Securing your VPS server by directing DNS queries through trusted servers like Cloudflare's is essential for enhancing security, ensuring a secure connection, and preventing DNS leaks. Follow these detailed steps to configure your Linux-based VPS to exclusively use Cloudflare DNS.
@@ -245,7 +244,7 @@ ________________________________________________________________
 <details>
 <summary> WebRTC Leak Shield (Server Side) ➡️ Click to Open </summary>
 
-## WebRTC-Leak-Shield
+## WebRTC Leak Shield for VPS Server
 Block WebRTC Traffic, Securing Your VPS by Blocking WebRTC Traffic Using iptables and UFW
 
 Introduction: This guide will help you block WebRTC traffic using iptables and ufw on a Linux system. WebRTC (Web Real-Time Communication) is often used for video conferencing and peer-to-peer communication, but it can expose your IP address even when using a VPN. Blocking WebRTC traffic can help enhance your privacy.
@@ -383,7 +382,7 @@ ________________________________________________________________
 <details>
 <summary> WebRTC Leak Shield (MacOS & Linux) ➡️ Click to Open </summary>
 
-## WebRTC-Leak-Shield
+## WebRTC Leak Shield for MacOS & Linux
 
 Securing Your System by Blocking WebRTC Traffic Using iptables and UFW
 WebRTC ports can be blocked using the Packet Filter (PF) firewall on macOS and Linux.
@@ -437,8 +436,17 @@ These steps will effectively block WebRTC leaks using PF on a macOS or Linux sys
 This will help protect the real IP address when using a VPN and enhance online privacy.
 
 </details>
+________________________________________________________________
 
+<details>
+<summary> WebRTC Leak Shield (Windows) ➡️ Click to Open </summary>
 
+## WebRTC Leak Shield for Windows
+
+Securing Your System by Blocking WebRTC Traffic Using iptables and UFW
+WebRTC ports can be blocked using the Packet Filter (PF) firewall on macOS and Linux.
+
+</details>
 
 
 
