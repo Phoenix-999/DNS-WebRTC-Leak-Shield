@@ -201,13 +201,6 @@ Ensure systemd-resolved starts automatically:
 ```bash
 sudo systemctl enable systemd-resolved
 ```
-________________________________________________________________
-### Conclusion
-
-This tutorial has outlined steps to enhance the security of your Linux-based VPS by configuring it to use only Cloudflare's DNS servers.
-By backing up and updating /etc/resolv.conf, setting it as immutable to prevent overrides, and optionally configuring systemd-resolved, the DNS configuration is now fortified against potential leaks.
-Leveraging Cloudflare's DNS features like DNS-over-TLS and DNSSEC ensures secure and reliable DNS resolution, safeguarding your VPS from vulnerabilities.
-These measures guarantee persistent settings across reboots, maintaining robust network performance and data integrity.
 
 _________________________________________________________________
 
@@ -243,10 +236,6 @@ sudo systemctl disable systemd-resolved
 sudo systemctl restart systemd-networkd
 ```
 ________________________________________________________________
-### Conclusion
-
-Following these steps restores the VPS to its original DNS configuration before any changes were made with Cloudflare DNS settings.
-This process provides the flexibility to revert configurations as needed, ensuring peace of mind.
 
 </details>
 
