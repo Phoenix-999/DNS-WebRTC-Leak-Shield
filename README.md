@@ -433,6 +433,76 @@ Verify that the rules have been loaded correctly by using the following command
 sudo pfctl -s rules
 ```
 
+### Step 7: Lock Configuration Files (Optional but Recommended)
+🚩 This command securely **`/etc/pf.conf`** , prevents system from modifying it
+```bash
+sudo chflags schg /etc/pf.conf
+```
+### ⚠️ Additional Note:
+If you need to modify `/etc/pf.conf` in the future, remember to remove the immutable attribute
+Remove Lock Configuration Files To update the configuration, you'll need to remove the immutable flag.
+
+```bash
+sudo chflags noschg /etc/pf.conf
+```
+
+### Step 8: Reboot Resistance
+To ensure that the WebCRT configuration remains disabled and starts automatically at boot-up every time, follow these steps
+
+**Create a Launch Daemon for PF**
+#
+1. Create a new launch daemon configuration file.
+   
+   Let's name it com.**yourusername**.pfload.plist (replace **`yourusername`** with your actual macOS **`username`**):
+
+```bash
+sudo nano /Library/LaunchDaemons/com.yourusername.pfload.plist
+```
+#
+2. Paste the following XML content into the nano editor. This XML defines a launch daemon that reloads PF at system startup:
+   
+  Replace com.`yourusername`.pfload with a unique identifier for your launch daemon.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.yourusername.pfload</string>
+    <key>Program</key>
+    <string>/sbin/pfctl</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>pfctl</string>
+        <string>-e</string>
+        <string>-f</string>
+        <string>/etc/pf.conf</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+</dict>
+</plist>
+```
+Save and exit the editor (Ctrl+X, then Y to confirm, and Enter.
+#
+3. Set Permissions on the Launch Daemon File
+Set appropriate permissions on the launch daemon file you just created:
+```bash
+sudo chown root:wheel /Library/LaunchDaemons/com.yourusername.pfload.plist
+sudo chmod 644 /Library/LaunchDaemons/com.yourusername.pfload.plist
+```
+
+sudo nano /Library/LaunchDaemons/com.iman.pfload.plist
+
+
+sudo chown root:wheel /Library/LaunchDaemons/com.iman.pfload.plist
+sudo chmod 644 /Library/LaunchDaemons/com.iman.pfload.plist
+
+
+
+#
+
 These steps will effectively block WebRTC leaks using PF on a macOS or Linux system.
 This will help protect the real IP address when using a VPN and enhance online privacy.
 
