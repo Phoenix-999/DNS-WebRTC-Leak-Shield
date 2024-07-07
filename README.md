@@ -384,7 +384,7 @@ ________________________________________________________________
 
 ## WebRTC Leak Shield for MacOS & Linux
 
-Securing Your System by Blocking WebRTC Traffic Using iptables and UFW
+How to Block WebRTC Leaks Using PF on macOS and Linux via Terminal
 WebRTC ports can be blocked using the Packet Filter (PF) firewall on macOS and Linux.
 
 Prerequisites
@@ -436,15 +436,48 @@ These steps will effectively block WebRTC leaks using PF on a macOS or Linux sys
 This will help protect the real IP address when using a VPN and enhance online privacy.
 
 </details>
+
 ________________________________________________________________
+
 
 <details>
 <summary> WebRTC Leak Shield (Windows) ➡️ Click to Open </summary>
 
 ## WebRTC Leak Shield for Windows
 
-Securing Your System by Blocking WebRTC Traffic Using iptables and UFW
-WebRTC ports can be blocked using the Packet Filter (PF) firewall on macOS and Linux.
+Block WebRTC Leaks Using the Windows Command Prompt
+WebRTC ports can be blocked using the Windows Command Prompt. This guide provides step-by-step instructions to block WebRTC leaks.
+
+### Step 1: Open the Command Prompt as an Administrator
+Right-click on the Start button and select "Command Prompt (Admin)
+
+### Step 2: Create a New Rule to Block Outbound WebRTC Traffic
+Run the following command to block outbound UDP traffic:
+```bash
+netsh advfirewall firewall add rule name="WebRTC Block UDP Outbound" dir=out action=block protocol=udp localport=3478,5349,19302,19305,3479,5348,19306
+```
+Run the following command to block outbound TCP traffic
+
+```bash
+netsh advfirewall firewall add rule name="WebRTC Block TCP Outbound" dir=out action=block protocol=tcp localport=3478,5349,19302,19305,3479,5348,19306
+```
+
+### Step 3: Create a New Rule to Block Inbound WebRTC Traffic
+Run the following command to block inbound UDP traffic:
+```bash
+netsh advfirewall firewall add rule name="WebRTC Block UDP Inbound" dir=in action=block protocol=udp localport=3478,5349,19302,19305,3479,5348,19306
+```
+Run the following command to block inbound TCP traffic
+```bash
+netsh advfirewall firewall add rule name="WebRTC Block TCP Inbound" dir=in action=block protocol=tcp localport=3478,5349,19302,19305,3479,5348,19306
+```
+
+### Step 4: Verify the Rules
+Run the following command to verify that the rules have been loaded
+```bash
+netsh advfirewall firewall show rule name="WebRTC Block*"
+```
+These steps will effectively block WebRTC leaks using the Windows Command Prompt. This will help protect the real IP address when using a VPN and enhance online privacy.
 
 </details>
 
