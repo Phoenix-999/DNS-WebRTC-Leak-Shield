@@ -342,7 +342,13 @@ ufw deny in proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306
 # Reload UFW to apply changes
 ufw reload
 ```
-#
+
+**Ensure UFW Rules are Persistent**
+
+UFW rules are automatically persistent, but ensure that UFW is enabled
+```bash
+sudo ufw enable
+```
 
 **Verify UFW Rules:**
 
