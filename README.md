@@ -405,10 +405,13 @@ sudo nano /etc/pf.conf
 Copy the following rules and paste them at the end of the PF configuration file
 
 ```bash
-# Block WebRTC leaks
+#############################################################
+#---------------------Block WebRTC leaks--------------------#  
+#############################################################
+
 block drop out proto udp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306}
 block drop out proto tcp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306}
-block drop in proto udp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306}
+block drop in proto udp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306} 
 block drop in proto tcp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306}
 ```
 
