@@ -6,7 +6,7 @@ _________________________________________________________________
 <details>
 <summary> DNS Leak Shield (Server Side) ➡️ Click to Open </summary>
 
-# DNS-Leak-Shield
+## DNS-Leak-Shield
 Securing Your VPS with Cloudflare DNS on Linux
 
 Introduction: Securing your VPS server by directing DNS queries through trusted servers like Cloudflare's is essential for enhancing security, ensuring a secure connection, and preventing DNS leaks. Follow these detailed steps to configure your Linux-based VPS to exclusively use Cloudflare DNS.
@@ -239,12 +239,15 @@ ________________________________________________________________
 
 </details>
 
-_________________________________________________________________
-_________________________________________________________________
-_________________________________________________________________
+
+________________________________________________________________
+
 <details>
 <summary> WebRTC Leak Shield (Server Side) ➡️ Click to Open </summary>
-  
+
+## WebRTC-Leak-Shield
+Block WebRTC Traffic, Securing Your System by Blocking WebRTC Traffic Using iptables and UFW
+
 Introduction: This guide will help you block WebRTC traffic using iptables and ufw on a Linux system. WebRTC (Web Real-Time Communication) is often used for video conferencing and peer-to-peer communication, but it can expose your IP address even when using a VPN. Blocking WebRTC traffic can help enhance your privacy.
 
 Prerequisites
@@ -255,44 +258,121 @@ Prerequisites
 ### Step 1: Backing Up Current Firewall Rules
 Before making any changes, it's important to back up your current iptables and UFW rules.
 
-## Backup iptables Rules:
+**Backup iptables Rules:**
+Open a terminal.Run the following command to save current iptables rules to a backup file
+```bash
+sudo iptables-save > iptables_backup.txt
+sudo ip6tables-save > ip6tables_backup.txt
+```
 
+**Backup UFW Rules:**
+Run the following commands to copy UFW configuration files to backup files
+```bash
+sudo cp /etc/ufw/user.rules ufw_backup.txt
+sudo cp /etc/ufw/user6.rules ufw6_backup.txt
+```
+#
 
-
-
-# Block WebRTC traffic using iptables
-echo "Configuring iptables..."
-
-## TCP Section
+### Step 2: Block WebRTC TCP & UDP Ports (iptables):
+Open a terminal and execute the following commands:
+```bash
+# Ensure you are root
+sudo su
 
 # Block WebRTC TCP Ports 10000 to 20000 for IPv4
-sudo iptables -A OUTPUT -p tcp --dport 10000:20000 -j REJECT
-
-## UDP Section
+iptables -A OUTPUT -p tcp --dport 10000:20000 -j REJECT
 
 # Block WebRTC UDP Ports 3478, 5349, 19302 for IPv4
-sudo iptables -A OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j REJECT
+iptables -A OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j REJECT
 
 # Block WebRTC UDP Ports 3478, 5349, 19302 for IPv6
-sudo ip6tables -A OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j REJECT
+ip6tables -A OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j REJECT
 
-# Save and apply iptables rules
-sudo iptables-save > /etc/iptables/rules.v4
-sudo ip6tables-save > /etc/iptables/rules.v6
+# Save iptables rules for IPv4 and IPv6
+iptables-save > /etc/iptables/rules.v4
+ip6tables-save > /etc/iptables/rules.v6
 
-# Restore rules to ensure they are applied
-sudo iptables-restore < /etc/iptables/rules.v4
-sudo ip6tables-restore < /etc/iptables/rules.v6
+# Start iptables service (if not already started)
+service iptables start
+systemctl start iptables
 
-# Start iptables services
-sudo service iptables start
-sudo systemctl start iptables
+```
 
+**Make iptables Rules Persistent**
+
+To ensure these rules are persistent across reboots, install iptables-persistent.
+During the installation, you will be prompted to save the current rules. Confirm this for both IPv4 and IPv6.
+```bash
+sudo apt-get install iptables-persistent
+```
+
+If you need to save the rules manually after making changes, use:
+```bash
+sudo netfilter-persistent save
+```
+
+**Verify iptables Rules:**
+
+To verify that the rules have been applied correctly, you can list the iptables rules:
+```bash
+iptables -L
+ip6tables -L
+```
+#
+
+### Step 3:  Block WebRTC TCP and UDP Ports (UFW):
+Open a terminal and execute the following commands:
+
+```bash
+# Ensure you are root
+sudo su
+
+# Block WebRTC TCP Ports 3478, 5349, 19302, 19305, 3479, 5348, 19306 (Outgoing)
+ufw deny out proto tcp from any to any port 3478,5349,19302,19305,3479,5348,19306
+
+# Block WebRTC TCP Ports 3478, 5349, 19302, 19305, 3479, 5348, 19306 (Incoming)
+ufw deny in proto tcp from any to any port 3478,5349,19302,19305,3479,5348,19306
+
+# Block WebRTC UDP Ports 3478, 5349, 19302, 19305, 3479, 5348, 19306 (Outgoing)
+ufw deny out proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306
+
+# Block WebRTC UDP Ports 3478, 5349, 19302, 19305, 3479, 5348, 19306 (Incoming)
+ufw deny in proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306
+
+# Reload UFW to apply changes
+ufw reload
+```
+#
+
+**Verify UFW Rules:**
+
+To verify that the UFW rules have been applied correctly, you can check the UFW status:
+```bash
+ufw status verbose
+```
+_________________________________________________________________
+
+## 🔴 Reverting to Original VPS Settings
+If you need to revert to your previous firewall rules:
+
+**Restore iptables Rules:**
+```bash
+iptables-restore < /etc/iptables/rules.v4
+ip6tables-restore < /etc/iptables/rules.v6
+```
+
+**Restore UFW Rules:**
+```bash
+cp ufw_backup.txt /etc/ufw/user.rules
+cp ufw6_backup.txt /etc/ufw/user6.rules
+
+# Reload UFW to apply changes
+ufw reload
+```
 
 </details>
 
-
-
+________________________________________________________________
 
 
 
