@@ -246,7 +246,7 @@ ________________________________________________________________
 <summary> WebRTC Leak Shield (Server Side) ➡️ Click to Open </summary>
 
 ## WebRTC-Leak-Shield
-Block WebRTC Traffic, Securing Your System by Blocking WebRTC Traffic Using iptables and UFW
+Block WebRTC Traffic, Securing Your VPS by Blocking WebRTC Traffic Using iptables and UFW
 
 Introduction: This guide will help you block WebRTC traffic using iptables and ufw on a Linux system. WebRTC (Web Real-Time Communication) is often used for video conferencing and peer-to-peer communication, but it can expose your IP address even when using a VPN. Blocking WebRTC traffic can help enhance your privacy.
 
@@ -380,7 +380,63 @@ ufw reload
 
 ________________________________________________________________
 
+<details>
+<summary> WebRTC Leak Shield (MacOS & Linux) ➡️ Click to Open </summary>
 
+## WebRTC-Leak-Shield
+
+Securing Your System by Blocking WebRTC Traffic Using iptables and UFW
+WebRTC ports can be blocked using the Packet Filter (PF) firewall on macOS and Linux.
+
+Prerequisites
+
+  > - You should have root or sudo access to your Linux system.
+  > - Basic knowledge of terminal commands.
+#
+
+### Step 1: Open the Terminal
+
+On macOS: Terminal can be found in the Applications/Utilities folder, or use Spotlight to search for it.
+On Linux: Terminal can be found in the Applications menu or use the keyboard shortcut Ctrl+Alt+T.
+
+### Step 2: Edit the PF Configuration File
+Open the PF configuration file using the following command in the Terminal.
+```bash
+sudo nano /etc/pf.conf
+```
+
+### Step 3: Add the WebRTC Blocking Rules
+Copy the following rules and paste them at the end of the PF configuration file
+
+```bash
+# Block WebRTC leaks
+block drop out proto udp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306}
+block drop out proto tcp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306}
+block drop in proto udp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306}
+block drop in proto tcp from any to any port {3478, 5349, 19302, 19305, 3479, 5348, 19306}
+```
+
+### Step 4: Save and Close the PF Configuration File
+Press Ctrl+X to exit the editor.
+Press Y to save the changes.
+Press Enter to confirm the file name.
+
+### Step 5: Reload the PF Configuration
+Reload the PF configuration to apply the new rules using the following command
+```bash
+sudo pfctl -f /etc/pf.conf
+```
+
+### Step 6: Verify the Rules
+Verify that the rules have been loaded correctly by using the following command
+```bash
+sudo pfctl -s rules
+```
+
+These steps will effectively block WebRTC leaks using PF on a macOS or Linux system.
+This will help protect the real IP address when using a VPN and enhance online privacy.
+
+</details>
 
 
 
