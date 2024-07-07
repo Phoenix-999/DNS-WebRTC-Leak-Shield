@@ -1,6 +1,8 @@
 # DNS-WebRTC-Leak-Shield
 DNS &amp; WebRTC Leak Shield - Protecting Your Online Privacy
 
+_________________________________________________________________
+
 <details>
 <summary> DNS Leak Shield (Server Side) ➡️ Click to Open </summary>
 
