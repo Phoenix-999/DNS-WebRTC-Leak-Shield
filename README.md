@@ -83,23 +83,23 @@ Protect `/etc/resolv.conf` from being overwritten by setting the immutable attri
 🚩 This command securely **`locks the file`** , prevents other programs from modifying  it
 
 ```bash
-sudo chmod 0444 /etc/resolv.conf
+sudo chattr +i /etc/resolv.conf
 ```
 OR
 
 ```bash
-sudo chattr +i /etc/resolv.conf
+sudo chmod 0444 /etc/resolv.conf
 ```
 
 #### ⚠️  Additional Note:
 If you need to modify `/etc/resolv.conf` in the future, remember to remove the immutable attribute:
 
 ```bash
-sudo chmod 0644 /etc/resolv.conf
+sudo chattr -i /etc/resolv.conf
 ```
 OR
 ```bash
-sudo chattr -i /etc/resolv.conf
+sudo chmod 0644 /etc/resolv.conf
 ```
 
 #
@@ -208,12 +208,12 @@ To revert to the original VPS DNS settings:
 
 ▶ Remove Immutable Attribute:
 ```bash
-sudo chmod 0644 /etc/resolv.conf
+sudo chattr -i /etc/resolv.conf
 ```
 OR
 
 ```bash
-sudo chattr -i /etc/resolv.conf
+sudo chmod 0644 /etc/resolv.conf
 ```
 #
 ▶ Restore Original /etc/resolv.conf:
