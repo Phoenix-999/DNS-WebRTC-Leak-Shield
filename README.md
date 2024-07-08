@@ -38,7 +38,7 @@ sudo systemctl restart systemd-resolved
 ### Step 2: Configure /etc/resolv.conf
 Edit the `/etc/resolv.conf` file and make minimal changes, ensure it only includes essential settings like
 
-🟡 It is crucial to maintain the default nameserver IP address as shown in your default settings.
+🟡 It's crucial to keep the default nameserver IP address as shown in your default settings. If it's not working, change the IP address. For example, replace 127.0.0.53 with Cloudflare's IP address, 1.1.1.1.
 
 
 ```bash
