@@ -46,30 +46,12 @@ sudo nano /etc/resolv.conf
 ```
 Ensure the file contains only these lines:
 ```conf                                           
-# This is /run/systemd/resolve/stub-resolv.conf managed by man:systemd-resolved(8).
-# Do not edit.
-#
-# This file might be symlinked as /etc/resolv.conf. If you're looking at
-# /etc/resolv.conf and seeing this text, you have followed the symlink.
-#
-# This is a dynamic resolv.conf file for connecting local clients to the
-# internal DNS stub resolver of systemd-resolved. This file lists all
-# configured search domains.
-#
-# Run "resolvectl status" to see details about the uplink DNS servers
-# currently in use.
-#
-# Third party programs should typically not access this file directly, but only
-# through the symlink at /etc/resolv.conf. To manage man:resolv.conf(5) in a
-# different way, replace this symlink by a static file or a different symlink.
-#
-# See man:systemd-resolved.service(8) for details about the supported modes of
-# operation for /etc/resolv.conf.
 
-# Basic options for DNS resolution
-options dnssec dnssec-ok edns0 trust-ad rotate no-check-names inet6 timeout 2
-# Use systemd-resolved's local DNS stub resolver
-nameserver 127.0.0.53
+#########################################################
+#------Configure to use Cloudflare's DNS server---------# 
+#########################################################
+
+nameserver 1.0.0.1
 # Specify default domain for DNS search (optional)
 search .
 
