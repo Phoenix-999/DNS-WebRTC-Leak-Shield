@@ -30,7 +30,7 @@ To ensure that any existing DNS cache is cleared, you can flush the DNS cache us
 
 ```bash
 sudo resolvectl flush-caches
-sudo systemd-resolve --flush-caches
+sudo systemctl restart systemd-resolved
 ```
 
 #
