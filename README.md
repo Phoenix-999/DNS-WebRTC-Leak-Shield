@@ -113,6 +113,11 @@ Add or update these lines:
 
 ```conf
 [Resolve]
+
+#########################################################
+#------Configure to use Cloudflare's DNS server---------# 
+#########################################################
+
 DNS=security.cloudflare-dns.com
 DNSOverTLS=yes
 DNSOverUDP=no
