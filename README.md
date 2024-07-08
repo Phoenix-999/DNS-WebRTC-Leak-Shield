@@ -621,9 +621,9 @@ _________________________________________________________________
 
 ## Testing the DNS & WebRTC Leaks
 
-Introduction :After blocking WebRTC leaks using firewall rules or browser extensions, it is essential to verify that the setup is effective.
+It is essential to verify that the setup is effective.
 Ensuring your VPN or firewall settings effectively block DNS and WebRTC leaks is crucial for maintaining online privacy.
-Several online tools can help test for WebRTC leaks. This guide explains how to use these websites to ensure there are no leaks.
+Several online tools can help test for DNS & WebRTC leaks. This guide explains how to use these websites to ensure there are no leaks.
 
   > - [Dnsleaktest.com](https://www.dnsleaktest.com/)
   > 
