@@ -51,9 +51,15 @@ Ensure the file contains only these lines:
 #------Configure to use Cloudflare's DNS server---------# 
 #########################################################
 
+
+# Configuration options for DNS resolution:
+options dnssec dnssec-ok edns0 trust-ad rotate no-check-names inet6 timeout 2
+
+# Primary DNS server IP address (Cloudflare DNS)
 nameserver 1.0.0.1
+
 # Specify default domain for DNS search (optional)
-search .
+# search .
 
 ```
 Save and exit the editor (Ctrl+X, Y, Enter).
