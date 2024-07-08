@@ -581,7 +581,7 @@ Since WebRTC cannot be disabled in Chrome (desktop), add-ons are the only option
 
 **Disable Chrome WebRTC on Android**
 
-On your Android device, open the URL chrome://flags/#disable-webrtc in Chrome.
+On your Android device, open the URL **`chrome://flag`** or **`chrome://flags/#disable-webrtc`** in Chrome.
 Scroll down and find “WebRTC STUN origin header” – then disable it. For safe measure, you can also disable the WebRTC Hardware Video Encoding/Decoding options, though it may not be necessary.
 
 
