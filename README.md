@@ -97,10 +97,9 @@ If your VPS uses `systemd-resolved`, configure it to use Cloudflare's DNS server
 ```bash
 sudo nano /etc/systemd/resolved.conf
 ```
-Add or update these lines:
+Add or update these lines after `[Resolve]`:
 
 ```conf
-[Resolve]
 
 #########################################################
 #------Configure to use Cloudflare's DNS server---------# 
