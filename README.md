@@ -112,8 +112,8 @@ DNSSEC=yes
 DNSSECMode=yes
 DNSSECValidation=yes
 Cache=yes
-CacheSize=100M
-CacheExpire=3600
+CacheSize=340M
+CacheExpire=7000
 CacheFromLocalhost=yes
 ReadEtcHosts=yes
 LogQueries=yes
@@ -140,16 +140,16 @@ LogFilterReject=private,rejected,cached,invalid
 
 # Enable DNS caching with aggressive caching
 Cache=yes
-CacheSize=100M
-CacheExpire=3600
+CacheSize=340M
+CacheExpire=7000
 CacheFromLocalhost=yes
 CacheAggressive=yes
 
 # Enable DNS query rate limiting
 RateLimit=yes
-RateLimitInterval=1m
-RateLimitBurst=100
-RateLimitSize=100M
+RateLimitInterval=2m
+RateLimitBurst=340
+RateLimitSize=340M
 
 # Additional optimizations
 MulticastDNS=yes
