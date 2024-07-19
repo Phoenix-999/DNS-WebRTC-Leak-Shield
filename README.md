@@ -292,7 +292,6 @@ sudo systemctl disable systemd-resolved
 ```bash
 sudo systemctl restart systemd-networkd
 ```
-________________________________________________________________
 
 </details>
 
