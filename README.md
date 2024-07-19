@@ -189,7 +189,76 @@ Ensure systemd-resolved starts automatically:
 ```bash
 sudo systemctl enable systemd-resolved
 ```
+_________________________________________________________________
+## Automate Flushing DNS Caches
 
+### Step 1: Create and edit the script file:
+
+```bash
+sudo nano /usr/local/bin/flush_caches.sh
+```
+Add the following content to the script:
+
+```bash
+#!/bin/bash
+
+INTERVAL=97200  # 27 hours in seconds
+TIMESTAMP_FILE="/var/tmp/flush_caches.timestamp"
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Ensure necessary commands are available
+if ! command_exists resolvectl || ! command_exists systemctl; then
+    echo "ERROR: Necessary commands are not available."
+    exit 1
+fi
+
+# Determine the last run time
+if [ -f "$TIMESTAMP_FILE" ]; then
+    LAST_RUN=$(cat "$TIMESTAMP_FILE")
+else
+    LAST_RUN=0
+fi
+
+CURRENT_TIME=$(date +%s)
+
+# Execute commands if interval has passed
+if (( CURRENT_TIME - LAST_RUN >= INTERVAL )); then
+    if sudo resolvectl flush-caches && sudo systemctl restart systemd-resolved; then
+        echo "Successfully flushed DNS caches and restarted systemd-resolved."
+        echo $CURRENT_TIME > "$TIMESTAMP_FILE"
+    else
+        echo "ERROR: Failed to flush DNS caches or restart systemd-resolved."
+    fi
+else
+    echo "Not enough time has passed since the last run."
+fi
+
+```
+### Step 2: Save and close the file
+press CTRL+O to save the file, then press CTRL+X to exit the editor.
+
+### Step 3: Make the script executable
+```bash
+sudo chmod +x /usr/local/bin/flush_caches.sh
+```
+
+### Step 4: Set Up the Cron Job
+Press 1 to Open the root user's crontab file for editing:
+```bash
+sudo crontab -e
+```
+Add the following lines in the end
+```bash
+0 * * * * /usr/local/bin/flush_caches.sh
+@reboot /usr/local/bin/flush_caches.sh
+```
+Save and close the crontab file
+
+By following these steps, we've created a robust system for automating the flushing of DNS caches and restarting the systemd-resolved service.
 _________________________________________________________________
 
 ## 🔴 Reverting to Original VPS Settings
@@ -344,6 +413,7 @@ To verify that the UFW rules have been applied correctly, you can check the UFW 
 ```bash
 ufw status verbose
 ```
+
 _________________________________________________________________
 
 ## 🔴 Reverting to Original VPS Settings
