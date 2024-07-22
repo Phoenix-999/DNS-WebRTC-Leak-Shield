@@ -3,6 +3,39 @@ DNS &amp; WebRTC Leak Shield -
 Protecting online privacy requires guarding against DNS and WebRTC leaks, potential vulnerabilities that can unintentionally expose real IP addresses.
 This guide offers straightforward methods and tools to prevent these leaks across various platforms and environments.
 _________________________________________________________________
+## Automated DNS & WebRTC Leak Shield Configuration
+
+This is an Automated Configuration Script for DNS, WebRTC Leak Protection on Ubuntu/Debian VPS! This Bash script is designed to simplify the process of setting up and configuring DNS and WebRTC leak protection on your VPS. With an easy-to-use menu interface, you can quickly choose from various DNS providers such as Cloudflare, Google, and Quad9, and enable or disable WebRTC leak protection to secure your VPS and protect your privacy. The script also includes functions to back up and restore configuration files, ensuring that your settings are always safe.
+
+## Prerequisites:
+
+Ubuntu & Debian
+  * Linux `AMD64` Processor Architecture
+  * Linux `ARM64` Processor Architecture
+  * Ensure that the sudo and wget packages are installed on your system:
+
+Before you start, ensure that your system meets the following requirements:
+```bash
+sudo apt update -q && sudo apt upgrade -y
+sudo apt install -y sudo wget build-essential aptitude
+```
+Root Access is Required. If the user is not root, first run:
+```bash
+sudo -i
+```
+
+### Download and Run the Script
+To download, set executable permissions, and run the script, use the following one-liner command:
+```bash
+mkdir -p ~/DNS_WebRTC_Shield && wget -qO ~/DNS_WebRTC_Shield/dns_webrtc_leak_protection.bash "https://raw.githubusercontent.com/Phoenix-999/DNS-WebRTC-Leak-Shield/main/dns_webrtc_leak_protection.bash" && chmod +x ~/DNS_WebRTC_Shield/dns_webrtc_leak_protection.bash && sudo ~/DNS_WebRTC_Shield/dns_webrtc_leak_protection.bash
+```
+#
+### Menu Image
+
+#
+### Disclaimer:
+This script is offered without any warranty or guarantee, and it is provided as is. Use it at your own discretion and risk.
+_________________________________________________________________
 
 <details>
 <summary> Manual Configuration Guide - DNS Leak Shield (Server Side) ➡️ Click to Open </summary>
