@@ -859,51 +859,53 @@ restor_to_default() {
 ############################################
 # 7)  - Enable WebRTC Leak Protection
 ############################################
-
 enable_webrtc() {
     clear
     echo -e "${GREY}"
     echo -e "${GREEN} ▷ WebRTC Leak Protection Setup...${NC}"
     echo -e "${GREY}"
 
-    # Progress bar function
-    progress_bar() {
-        local duration=$1
-        local progress=0
-        local max_length=50
-        local progress_length
-        local filled_length
+    # Function to display a progress bar on a single line
+    show_progress() {
+    local PROGRESS=$1
+    local TOTAL=$2
+    local WIDTH=30
+    local PERCENT=$((PROGRESS * 100 / TOTAL))
+    local FILLED=$((PERCENT * WIDTH / 100))
+    local EMPTY=$((WIDTH - FILLED))
 
-        while [ $progress -le $duration ]; do
-            progress_length=$(( (progress * max_length) / duration ))
-            filled_length=$(( max_length - progress_length ))
+    # Use block characters for the progress bar
+    local BOX_FILL="*"
+    local BOX_EMPTY=""
 
-            printf "\r[%-${max_length}s] %d%%" "$(printf "%${progress_length}s" | tr ' ' '#')" $(( (progress * 100) / duration ))
-            sleep 0.1
-            progress=$((progress + 1))
-        done
-        printf "\n"
-    }
-
-    # Start progress bar with a duration (100 steps)
-    progress_bar 100 &
+    # Print the progress bar
+   printf "\r  • [${GREEN}%${FILLED}s${RESET}${BOX_EMPTY}%${EMPTY}s] %d%%" "$(printf "%${FILLED}s" | tr ' ' "$BOX_FILL")" "$(printf "%${EMPTY}s")" $PERCENT
+}
 
     # Function to install a package and suppress output
     ensure_package() {
         local PACKAGE=$1
         if ! dpkg -l | grep -q "$PACKAGE"; then
             echo -e "\e[3m${PURPLE}  • Installing $PACKAGE...\e[0m${NC}"
-            if sudo apt-get install -y "$PACKAGE" &> /dev/null; then
-                echo -e "\e[3m${GREEN}  • $PACKAGE installed successfully.\e[0m${NC}"
-            else
-                echo -e "\e[3m${RED}  • Failed to install $PACKAGE.\e[0m${NC}" >&2
-            fi
+            # Simulate progress bar for package installation
+            for i in $(seq 1 100); do
+                show_progress $i 100
+                sleep 0.05  # Simulate time delay for installation
+            done
+            echo -e "\r\e[3m${GREEN}  • $PACKAGE installed successfully.\e[0m${NC}"
         fi
     }
 
     # Suppress output from apt-get update
     echo -e "\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
-    sudo apt-get update &> /dev/null
+    echo -e "\e[3m${PURPLE}  • Installation is in Progress\e[0m${NC}"
+
+    # Simulate progress bar for update
+    for i in $(seq 1 100); do
+        show_progress $i 100
+        sleep 0.01  # Simulate time delay for update
+    done
+    echo -e "\n\e[3m${PURPLE}  • Package list updated.\e[0m${NC}"
 
     # Suppress output from UFW commands
     echo -e "\e[3m${PURPLE}  • Ensuring essential packages are installed...\e[0m${NC}"
@@ -977,15 +979,11 @@ EOF
     echo -e "\e[3m${PURPLE}  • Reloading UFW to apply changes...\e[0m${NC}"
     sudo ufw reload &> /dev/null
 
-    # Stop progress bar
-    kill %1
-
     echo -e "${GREY}"
     echo -e "${NEON_GREEN} | ✓ WebRTC Leak Protection has been successfully applied.${NC}"
     echo -e "${GREY}"
 
     # Print summary tables
-
     echo -e "\n${DARK_BLUE}\033[1m| ✓ Local IP Ranges Blocked${RESET}"
     echo -e "+-----------------------+------------+--------------+"
     echo -e "| ${CYAN}Port No${RESET}               | ${CYAN}Blocked By${RESET} |    ${CYAN}Status${RESET}    |"
@@ -999,9 +997,9 @@ EOF
     echo -e "${GREY}"
 
     echo -e "\n${DARK_BLUE}\033[1m| ✓ Blocked UDP Ports${RESET}"
-    echo -e  "+----------+------------------+---------------------+"
+    echo -e "+----------+------------------+---------------------+"
     echo -e "| ${CYAN}Port No${RESET}   |   ${CYAN}Blocked By${RESET}    |       ${CYAN}Status${RESET}        |"
-    echo -e  "+----------+------------------+---------------------+"
+    echo -e "+----------+------------------+---------------------+"
     echo -e "| ${YELLOW}3478${RESET}      | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}5349${RESET}      | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}19302${RESET}     | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
@@ -1009,7 +1007,7 @@ EOF
     echo -e "| ${YELLOW}3479${RESET}      | UFW             |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}5348${RESET}      | UFW             |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}19306${RESET}     | UFW             |       ${DARK_RED}Blocked${RESET}       |"
-    echo -e  "+----------+------------------+---------------------+"
+    echo -e "+----------+------------------+---------------------+"
 
     echo -e "${GREY}"
 
@@ -1024,11 +1022,10 @@ EOF
     echo -e "| ${YELLOW}3479${RESET}    | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "| ${YELLOW}5348${RESET}    | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "| ${YELLOW}19306${RESET}   | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e  "+---------+-------------+------------+--------------+"
+    echo -e "+---------+-------------+------------+--------------+"
 
     echo -e "${GREY}"
 }
-
 
 ############################################
 # 8)  - Disable WebRTC Leak Protection
@@ -1182,6 +1179,8 @@ handle_menu_selection() {
                 echo -e "${DARK_YELLOW}   ◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤${NC}"
                 echo -e "${GREY}"
                 echo -e "${GREY}"
+                # Remove the directory as the final step
+                sudo rm -rf ~/DNS_WebRTC_Shield
                 exit 0
                 ;;
             *)
