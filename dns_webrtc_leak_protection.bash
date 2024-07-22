@@ -860,11 +860,36 @@ restor_to_default() {
 # 7)  - Enable WebRTC Leak Protection
 ############################################
 
+#!/bin/bash
+
+############################################
+# 7)  - Enable WebRTC Leak Protection
+############################################
+
 enable_webrtc() {
     clear
     echo -e "${GREY}"
     echo -e "${GREEN} ▷ WebRTC Leak Protection Setup...${NC}"
     echo -e "${GREY}"
+
+    # Progress bar function
+    progress_bar() {
+        local duration=$1
+        already_done() { for ((done=0; done<$elapsed; done++)); do printf "█"; done }
+        remaining() { for ((remain=$elapsed; remain<$duration; remain++)); do printf " "; done }
+        percentage() { printf "| %s%%" $(( ($elapsed*100)/($duration*1) )) }
+        clean_line() { printf "\r"; }
+        
+        for (( elapsed=1; elapsed<=$duration; elapsed++ )); do
+            clean_line
+            already_done; remaining; percentage
+            sleep 0.1
+        done
+        printf "\n"
+    }
+
+    # Start progress bar with a duration (100 steps)
+    progress_bar 100 &
 
     # Function to install a package and suppress output
     ensure_package() {
@@ -1003,6 +1028,8 @@ EOF
 
     echo -e "${GREY}"
 }
+
+enable_webrtc
 
 ############################################
 # 8)  - Disable WebRTC Leak Protection
