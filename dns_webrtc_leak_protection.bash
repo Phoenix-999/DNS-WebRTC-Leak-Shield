@@ -860,17 +860,13 @@ restor_to_default() {
 # 7)  - Enable WebRTC Leak Protection
 ############################################
 
-############################################
-# 7)  - Enable WebRTC Leak Protection
-############################################
-
 # Function to display a progress bar
 show_progress() {
     local PROGRESS=$1
     local TOTAL=100
     local FILLED=$(printf "%.0f" $(echo "$PROGRESS * 20" | bc))
     local EMPTY=$((20 - FILLED / 5))
-    local BAR=$(printf "%${FILLED}s" | tr ' ' '■')$(printf "%${EMPTY}s" | tr ' ' '□')
+    local BAR=$(printf "%${FILLED}s" | tr ' ' '█')$(printf "%${EMPTY}s" | tr ' ' '░')
     echo -ne "\r[${BAR}] ${PROGRESS}%"
 }
 
@@ -880,11 +876,11 @@ enable_webrtc() {
     echo -e "${GREEN} ▷ WebRTC Leak Protection Setup...${NC}"
     show_progress 0
 
-    # Function to install a package and suppress output
+    # Function to install a package and update the progress bar
     ensure_package() {
         local PACKAGE=$1
         local STEP=$2
-        echo -e "\e[3m${PURPLE}  • Installing $PACKAGE...\e[0m${NC}"
+        echo -e "\n\e[3m${PURPLE}  • Installing $PACKAGE...\e[0m${NC}"
         if ! sudo apt-get install -y "$PACKAGE" &> /dev/null; then
             echo -e "${RED}  • ERROR: installation of $PACKAGE failed.${NC}"
             exit 1
@@ -893,21 +889,17 @@ enable_webrtc() {
     }
 
     # Suppress output from apt-get update
-    echo -e "\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
+    echo -e "\n\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
     if ! sudo apt-get update &> /dev/null; then
         echo -e "${RED}  • ERROR: updating package list failed.${NC}"
         exit 1
     fi
 
-    # Suppress output from UFW commands
+    # Install essential packages and show progress
     echo -e "\e[3m${PURPLE}  • Ensuring essential packages are installed...\e[0m${NC}"
-    
-    # Set non-interactive mode to avoid prompts during installation
-    export DEBIAN_FRONTEND=noninteractive
-    ensure_package "ufw" 20
-    ensure_package "iptables" 60
+    ensure_package "ufw" 33
+    ensure_package "iptables" 66
     ensure_package "iptables-persistent" 100
-    unset DEBIAN_FRONTEND
 
     echo -e "\n${GREY}"
     echo -e "${NEON_GREEN} | ✓ Packages have been successfully installed.${NC}"
@@ -1027,14 +1019,14 @@ EOF
     echo -e "| ${YELLOW}172.16.0.0/12${RESET}     | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "| ${YELLOW}192.168.0.0/16${RESET}    | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "| ${YELLOW}169.254.0.0/16${RESET}    | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "+---------+-------------+------------+--------------+"
+    echo -e "+-----------------------+------------+--------------+"
 
     echo -e "${GREY}"
 
     echo -e "\n${DARK_BLUE}\033[1m| ✓ Blocked UDP Ports${RESET}"
-    echo -e  "+----------+------------------+---------------------+"
+    echo -e "+----------+------------------+---------------------+"
     echo -e "| ${CYAN}Port No${RESET}   |   ${CYAN}Blocked By${RESET}    |       ${CYAN}Status${RESET}        |"
-    echo -e  "+----------+------------------+---------------------+"
+    echo -e "+----------+------------------+---------------------+"
     echo -e "| ${YELLOW}3478${RESET}      | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}5349${RESET}      | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}19302${RESET}     | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
@@ -1061,6 +1053,7 @@ EOF
 
     echo -e "${GREY}"
 }
+
 
 ############################################
 # 8)  - Disable WebRTC Leak Protection
