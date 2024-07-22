@@ -859,6 +859,9 @@ restor_to_default() {
 ############################################
 # 7)  - Enable WebRTC Leak Protection
 ############################################
+############################################
+# 7)  - Enable WebRTC Leak Protection
+############################################
 enable_webrtc() {
     clear
     echo -e "${GREY}"
@@ -874,7 +877,7 @@ enable_webrtc() {
         fi
     }
 
- # Function to check and install ufw if missing
+    # Function to check and install ufw if missing
     check_and_install_ufw() {
         # Check if ufw is installed
         if ! command -v ufw &> /dev/null; then
@@ -884,17 +887,15 @@ enable_webrtc() {
         fi
     }
 
-
     # Suppress output from apt-get update
     echo -e "\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
     sudo apt-get update &> /dev/null
 
     # Ensure ufw is installed
-    check_and_install_ufw
+    check_and_install_ufw  # <-- Added this line to check and install ufw
 
-    # Suppress output from UFW commands
+    # Suppress output from other apt-get commands
     echo -e "\e[3m${PURPLE}  • Ensuring essential packages are installed...\e[0m${NC}"
-    ensure_package "ufw"
     ensure_package "iptables"
     ensure_package "iptables-persistent"
 
