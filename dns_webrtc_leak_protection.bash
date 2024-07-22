@@ -1187,7 +1187,7 @@ handle_menu_selection() {
                 clear
                 echo -e "${GREY}"
                 echo -e "${RED}  • Invalid Entry!${NC}"
-                echo -e "${RED}  • Please choose a number between 0 and 8.${NC}"
+                echo -e "${RED}  • Please choose a number between (0-8)${NC}"
 
                 ;;
         esac
