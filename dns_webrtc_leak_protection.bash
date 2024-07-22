@@ -874,9 +874,23 @@ enable_webrtc() {
         fi
     }
 
+ # Function to check and install ufw if missing
+    check_and_install_ufw() {
+        # Check if ufw is installed
+        if ! command -v ufw &> /dev/null; then
+            echo -e "\e[3m${PURPLE}  • UFW not found. Installing UFW...\e[0m${NC}"
+            sudo apt-get update &> /dev/null
+            ensure_package "ufw"  # Install ufw if not found
+        fi
+    }
+
+
     # Suppress output from apt-get update
     echo -e "\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
     sudo apt-get update &> /dev/null
+
+    # Ensure ufw is installed
+    check_and_install_ufw
 
     # Suppress output from UFW commands
     echo -e "\e[3m${PURPLE}  • Ensuring essential packages are installed...\e[0m${NC}"
