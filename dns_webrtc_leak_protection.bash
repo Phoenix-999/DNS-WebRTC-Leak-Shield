@@ -865,6 +865,11 @@ restor_to_default() {
 ############################################
 # 7)  - Enable WebRTC Leak Protection
 ############################################
+#!/bin/bash
+
+############################################
+# 7)  - Enable WebRTC Leak Protection
+############################################
 
 enable_webrtc() {
     clear
@@ -875,15 +880,18 @@ enable_webrtc() {
     # Progress bar function
     progress_bar() {
         local duration=$1
-        already_done() { for ((done=0; done<$elapsed; done++)); do printf "█"; done }
-        remaining() { for ((remain=$elapsed; remain<$duration; remain++)); do printf " "; done }
-        percentage() { printf "| %s%%" $(( ($elapsed*100)/($duration*1) )) }
-        clean_line() { printf "\r"; }
-        
-        for (( elapsed=1; elapsed<=$duration; elapsed++ )); do
-            clean_line
-            already_done; remaining; percentage
+        local progress=0
+        local max_length=50
+        local progress_length
+        local filled_length
+
+        while [ $progress -le $duration ]; do
+            progress_length=$(( (progress * max_length) / duration ))
+            filled_length=$(( max_length - progress_length ))
+
+            printf "\r[%-${max_length}s] %d%%" "$(printf "%${progress_length}s" | tr ' ' '#')" $(( (progress * 100) / duration ))
             sleep 0.1
+            progress=$((progress + 1))
         done
         printf "\n"
     }
@@ -980,6 +988,9 @@ EOF
     echo -e "\e[3m${PURPLE}  • Reloading UFW to apply changes...\e[0m${NC}"
     sudo ufw reload &> /dev/null
 
+    # Stop progress bar
+    kill %1
+
     echo -e "${GREY}"
     echo -e "${NEON_GREEN} | ✓ WebRTC Leak Protection has been successfully applied.${NC}"
     echo -e "${GREY}"
@@ -1030,6 +1041,7 @@ EOF
 }
 
 enable_webrtc
+
 
 ############################################
 # 8)  - Disable WebRTC Leak Protection
