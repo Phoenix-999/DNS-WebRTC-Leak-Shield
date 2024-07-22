@@ -866,12 +866,35 @@ enable_webrtc() {
     echo -e "${GREEN} ▷ WebRTC Leak Protection Setup...${NC}"
     echo -e "${GREY}"
 
+    # Progress bar function
+    progress_bar() {
+        local duration=$1
+        already_done() { for ((done=0; done<$elapsed; done++)); do printf "█"; done }
+        remaining() { for ((remain=$elapsed; remain<$duration; remain++)); do printf " "; done }
+        percentage() { printf "| %s%%" $(( ($elapsed*100)/($duration*1) )) }
+        clean_line() { printf "\r"; }
+        
+        for (( elapsed=1; elapsed<=$duration; elapsed++ )); do
+            clean_line
+            already_done; remaining; percentage
+            sleep 0.1
+        done
+        printf "\n"
+    }
+
+    # Start progress bar with a duration (100 steps)
+    progress_bar 100 &
+
     # Function to install a package and suppress output
     ensure_package() {
         local PACKAGE=$1
         if ! dpkg -l | grep -q "$PACKAGE"; then
             echo -e "\e[3m${PURPLE}  • Installing $PACKAGE...\e[0m${NC}"
-            sudo apt-get install -y "$PACKAGE" &> /dev/null
+            if sudo apt-get install -y "$PACKAGE" &> /dev/null; then
+                echo -e "\e[3m${GREEN}  • $PACKAGE installed successfully.\e[0m${NC}"
+            else
+                echo -e "\e[3m${RED}  • Failed to install $PACKAGE.\e[0m${NC}" >&2
+            fi
         fi
     }
 
@@ -887,7 +910,11 @@ enable_webrtc() {
     # Check UFW status and handle accordingly
     if ! sudo ufw status | grep -q "Status: active"; then
         echo -e "\e[3m${PURPLE}  • Enabling UFW...\e[0m${NC}"
-        sudo ufw --force enable &> /dev/null
+        if sudo ufw --force enable &> /dev/null; then
+            echo -e "\e[3m${GREEN}  • UFW enabled successfully.\e[0m${NC}"
+        else
+            echo -e "\e[3m${RED}  • Failed to enable UFW.\e[0m${NC}" >&2
+        fi
     fi
 
     echo -e "\e[3m${PURPLE}  • Setting default UFW policies...\e[0m${NC}"
@@ -906,7 +933,7 @@ enable_webrtc() {
     IPTABLES_SCRIPT="/etc/iptables/iptables-rules.sh"
     echo -e "\e[3m${PURPLE}  • Creating iptables rules script...\e[0m${NC}"
     sudo mkdir -p /etc/iptables
-    sudo bash -c "cat > $IPTABLES_SCRIPT" << 'EOF'
+    cat << 'EOF' | sudo tee $IPTABLES_SCRIPT > /dev/null
 #!/bin/bash
 
 # Block a range of ports (10000-20000) for TCP
@@ -926,7 +953,7 @@ EOF
 
     SYSTEMD_SERVICE="/etc/systemd/system/iptables-rules.service"
     echo -e "\e[3m${PURPLE}  • Creating systemd service for iptables rules...\e[0m${NC}"
-    sudo bash -c "cat > $SYSTEMD_SERVICE" << 'EOF'
+    cat << 'EOF' | sudo tee $SYSTEMD_SERVICE > /dev/null
 [Unit]
 Description=Apply iptables rules
 After=network.target
@@ -961,7 +988,7 @@ EOF
     echo -e "| ${YELLOW}172.16.0.0/12${RESET}         | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "| ${YELLOW}192.168.0.0/16${RESET}        | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "| ${YELLOW}169.254.0.0/16${RESET}        | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "+---------+-------------+------------+--------------+"
+    echo -e "+-----------------------+------------+--------------+"
 
     echo -e "${GREY}"
 
@@ -996,6 +1023,7 @@ EOF
     echo -e "${GREY}"
 }
 
+enable_webrtc
 
 ############################################
 # 8)  - Disable WebRTC Leak Protection
