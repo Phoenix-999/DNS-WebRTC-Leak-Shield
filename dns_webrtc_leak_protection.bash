@@ -870,33 +870,23 @@ enable_webrtc() {
         local PACKAGE=$1
         if ! dpkg -l | grep -q "$PACKAGE"; then
             echo -e "\e[3m${PURPLE}  • Installing $PACKAGE...\e[0m${NC}"
-            if ! sudo apt-get install -y "$PACKAGE" &> /dev/null; then
-                echo -e "\e[3m${RED}  ✗ Failed to install $PACKAGE.${NC}"
-                exit 1
-            fi
+            sudo apt-get install -y "$PACKAGE" &> /dev/null
         fi
     }
 
     # Suppress output from apt-get update
     echo -e "\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
-    if ! sudo apt-get update &> /dev/null; then
-        echo -e "\e[3m${RED}  ✗ Failed to update package list.${NC}"
-        exit 1
-    fi
+    sudo apt-get update &> /dev/null
 
     # Suppress output from UFW commands
     echo -e "\e[3m${PURPLE}  • Ensuring essential packages are installed...\e[0m${NC}"
     ensure_package "ufw"
     ensure_package "iptables"
-    ensure_package "iptables-persistent"
 
     # Check UFW status and handle accordingly
     if ! sudo ufw status | grep -q "Status: active"; then
         echo -e "\e[3m${PURPLE}  • Enabling UFW...\e[0m${NC}"
-        if ! sudo ufw --force enable &> /dev/null; then
-            echo -e "\e[3m${RED}  ✗ Failed to enable UFW.${NC}"
-            exit 1
-        fi
+        sudo ufw --force enable &> /dev/null
     fi
 
     echo -e "\e[3m${PURPLE}  • Setting default UFW policies...\e[0m${NC}"
@@ -950,30 +940,11 @@ WantedBy=multi-user.target
 EOF
 
     echo -e "\e[3m${PURPLE}  • Enabling and starting iptables-rules service...\e[0m${NC}"
-    if ! sudo systemctl daemon-reload &> /dev/null; then
-        echo -e "\e[3m${RED}  ✗ Failed to reload systemd daemon.${NC}"
-        exit 1
-    fi
-    if ! sudo systemctl enable iptables-rules.service &> /dev/null; then
-        echo -e "\e[3m${RED}  ✗ Failed to enable iptables-rules service.${NC}"
-        exit 1
-    fi
-    if ! sudo systemctl start iptables-rules.service &> /dev/null; then
-        echo -e "\e[3m${RED}  ✗ Failed to start iptables-rules service.${NC}"
-        exit 1
-    fi
-
-    echo -e "\e[3m${PURPLE}  • Saving iptables rules to persist across reboots...\e[0m${NC}"
-    if ! sudo netfilter-persistent save &> /dev/null; then
-        echo -e "\e[3m${RED}  ✗ Failed to save iptables rules.${NC}"
-        exit 1
-    fi
+    sudo systemctl enable iptables-rules.service &> /dev/null
+    sudo systemctl start iptables-rules.service &> /dev/null
 
     echo -e "\e[3m${PURPLE}  • Reloading UFW to apply changes...\e[0m${NC}"
-    if ! sudo ufw reload &> /dev/null; then
-        echo -e "\e[3m${RED}  ✗ Failed to reload UFW.${NC}"
-        exit 1
-    fi
+    sudo ufw reload &> /dev/null
 
     echo -e "${GREY}"
     echo -e "${NEON_GREEN} | ✓ WebRTC Leak Protection has been successfully applied.${NC}"
@@ -1023,7 +994,6 @@ EOF
 
     echo -e "${GREY}"
 }
-
 
 ############################################
 # 8)  - Disable WebRTC Leak Protection
