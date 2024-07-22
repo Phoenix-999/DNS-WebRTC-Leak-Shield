@@ -582,7 +582,7 @@ ________________________________________________________________
 
 
 <details>
-<summary> WebRTC Leak Shield (Windows) ➡️ Click to Open </summary>
+<summary> Manual Configuration Guide - WebRTC Leak Shield (Windows) ➡️ Click to Open </summary>
 
 ## WebRTC Leak Shield for Windows
 
