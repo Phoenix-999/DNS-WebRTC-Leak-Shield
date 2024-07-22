@@ -860,99 +860,48 @@ restor_to_default() {
 # 7)  - Enable WebRTC Leak Protection
 ############################################
 
-############################################
-# 7)  - Enable WebRTC Leak Protection
-############################################
-
-# Function to display a progress bar
-show_progress() {
-    local PROGRESS=$1
-    local TOTAL=100
-    local WIDTH=20
-    local FILLED=$((PROGRESS * WIDTH / TOTAL))
-    local EMPTY=$((WIDTH - FILLED))
-    local BAR=$(printf "%${FILLED}s" | tr ' ' '■')$(printf "%${EMPTY}s" | tr ' ' '□')
-    echo -ne "\r[${BAR}] ${PROGRESS}%"
-}
-
 enable_webrtc() {
     clear
     echo -e "${GREY}"
     echo -e "${GREEN} ▷ WebRTC Leak Protection Setup...${NC}"
-    show_progress 0
+    echo -e "${GREY}"
 
-    # Function to install a package and update the progress bar
+    # Function to install a package and suppress output
     ensure_package() {
         local PACKAGE=$1
-        local STEP=$2
-        echo -e "\n\e[3m${PURPLE}  • Installing $PACKAGE...\e[0m${NC}"
-        if ! sudo apt-get install -y "$PACKAGE" &> /dev/null; then
-            echo -e "${RED}  • ERROR: installation of $PACKAGE failed.${NC}"
-            exit 1
+        if ! dpkg -l | grep -q "$PACKAGE"; then
+            echo -e "\e[3m${PURPLE}  • Installing $PACKAGE...\e[0m${NC}"
+            sudo apt-get install -y "$PACKAGE" &> /dev/null
         fi
-        show_progress $STEP
     }
 
     # Suppress output from apt-get update
-    echo -e "\n\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
-    if ! sudo apt-get update &> /dev/null; then
-        echo -e "${RED}  • ERROR: updating package list failed.${NC}"
-        exit 1
-    fi
+    echo -e "\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
+    sudo apt-get update &> /dev/null
 
-    # Install essential packages and show progress
+    # Suppress output from UFW commands
     echo -e "\e[3m${PURPLE}  • Ensuring essential packages are installed...\e[0m${NC}"
-    ensure_package "ufw" 33
-    ensure_package "iptables" 66
-    ensure_package "iptables-persistent" 100
-
-    echo -e "\n${GREY}"
-    echo -e "${NEON_GREEN} | ✓ Packages have been successfully installed.${NC}"
-    echo -e "${GREY}"
+    ensure_package "ufw"
+    ensure_package "iptables"
 
     # Check UFW status and handle accordingly
-    echo -e "\e[3m${PURPLE}  • Checking UFW status...\e[0m${NC}"
     if ! sudo ufw status | grep -q "Status: active"; then
         echo -e "\e[3m${PURPLE}  • Enabling UFW...\e[0m${NC}"
-        if ! sudo ufw --force enable &> /dev/null; then
-            echo -e "${RED}  • ERROR: enabling UFW failed.${NC}"
-            exit 1
-        fi
+        sudo ufw --force enable &> /dev/null
     fi
 
     echo -e "\e[3m${PURPLE}  • Setting default UFW policies...\e[0m${NC}"
-    if ! sudo ufw default deny incoming &> /dev/null; then
-        echo -e "${RED}  • ERROR: setting default UFW policy for incoming failed.${NC}"
-        exit 1
-    fi
-    if ! sudo ufw default allow outgoing &> /dev/null; then
-        echo -e "${RED}  • ERROR: setting default UFW policy for outgoing failed.${NC}"
-        exit 1
-    fi
+    sudo ufw default deny incoming &> /dev/null
+    sudo ufw default allow outgoing &> /dev/null
 
     echo -e "\e[3m${PURPLE}  • Allowing SSH through UFW...\e[0m${NC}"
-    if ! sudo ufw allow ssh &> /dev/null; then
-        echo -e "${RED}  • ERROR: allowing SSH through UFW failed.${NC}"
-        exit 1
-    fi
+    sudo ufw allow ssh &> /dev/null
 
     echo -e "\e[3m${PURPLE}  • Blocking WebRTC ports via UFW...\e[0m${NC}"
-    if ! sudo ufw deny out proto tcp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null; then
-        echo -e "${RED}  • ERROR: blocking outgoing TCP ports via UFW failed.${NC}"
-        exit 1
-    fi
-    if ! sudo ufw deny in proto tcp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null; then
-        echo -e "${RED}  • ERROR: blocking incoming TCP ports via UFW failed.${NC}"
-        exit 1
-    fi
-    if ! sudo ufw deny out proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null; then
-        echo -e "${RED}  • ERROR: blocking outgoing UDP ports via UFW failed.${NC}"
-        exit 1
-    fi
-    if ! sudo ufw deny in proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null; then
-        echo -e "${RED}  • ERROR: blocking incoming UDP ports via UFW failed.${NC}"
-        exit 1
-    fi
+    sudo ufw deny out proto tcp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null
+    sudo ufw deny in proto tcp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null
+    sudo ufw deny out proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null
+    sudo ufw deny in proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null
 
     IPTABLES_SCRIPT="/etc/iptables/iptables-rules.sh"
     echo -e "\e[3m${PURPLE}  • Creating iptables rules script...\e[0m${NC}"
@@ -973,10 +922,7 @@ iptables -A OUTPUT -d 172.16.0.0/12 -j DROP
 iptables -A OUTPUT -d 192.168.0.0/16 -j DROP
 iptables -A OUTPUT -d 169.254.0.0/16 -j DROP
 EOF
-    if ! sudo chmod +x $IPTABLES_SCRIPT; then
-        echo -e "${RED}  • ERROR: setting permissions for $IPTABLES_SCRIPT failed.${NC}"
-        exit 1
-    fi
+    sudo chmod +x $IPTABLES_SCRIPT
 
     SYSTEMD_SERVICE="/etc/systemd/system/iptables-rules.service"
     echo -e "\e[3m${PURPLE}  • Creating systemd service for iptables rules...\e[0m${NC}"
@@ -995,22 +941,13 @@ WantedBy=multi-user.target
 EOF
 
     echo -e "\e[3m${PURPLE}  • Enabling and starting iptables-rules service...\e[0m${NC}"
-    if ! sudo systemctl enable iptables-rules.service &> /dev/null; then
-        echo -e "${RED}  • ERROR: enabling iptables-rules service failed.${NC}"
-        exit 1
-    fi
-    if ! sudo systemctl start iptables-rules.service &> /dev/null; then
-        echo -e "${RED}  • ERROR: starting iptables-rules service failed.${NC}"
-        exit 1
-    fi
+    sudo systemctl enable iptables-rules.service &> /dev/null
+    sudo systemctl start iptables-rules.service &> /dev/null
 
     echo -e "\e[3m${PURPLE}  • Reloading UFW to apply changes...\e[0m${NC}"
-    if ! sudo ufw reload &> /dev/null; then
-        echo -e "${RED}  • ERROR: reloading UFW failed.${NC}"
-        exit 1
-    fi
+    sudo ufw reload &> /dev/null
 
-    echo -e "\n${GREY}"
+    echo -e "${GREY}"
     echo -e "${NEON_GREEN} | ✓ WebRTC Leak Protection has been successfully applied.${NC}"
     echo -e "${GREY}"
 
@@ -1018,20 +955,20 @@ EOF
 
     echo -e "\n${DARK_BLUE}\033[1m| ✓ Local IP Ranges Blocked${RESET}"
     echo -e "+-----------------------+------------+--------------+"
-    echo -e "| ${CYAN}IP Range${RESET}          | ${CYAN}Blocked By${RESET} |    ${CYAN}Status${RESET}    |"
+    echo -e "| ${CYAN}Port No${RESET}               | ${CYAN}Blocked By${RESET} |    ${CYAN}Status${RESET}    |"
     echo -e "+-----------------------+------------+--------------+"
-    echo -e "| ${YELLOW}10.0.0.0/8${RESET}        | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}172.16.0.0/12${RESET}     | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}192.168.0.0/16${RESET}    | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}169.254.0.0/16${RESET}    | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "+-----------------------+------------+--------------+"
+    echo -e "| ${YELLOW}10.0.0.0/8${RESET}            | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}172.16.0.0/12${RESET}         | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}192.168.0.0/16${RESET}        | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}169.254.0.0/16${RESET}        | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "+---------+-------------+------------+--------------+"
 
     echo -e "${GREY}"
 
     echo -e "\n${DARK_BLUE}\033[1m| ✓ Blocked UDP Ports${RESET}"
-    echo -e "+----------+------------------+---------------------+"
+    echo -e  "+----------+------------------+---------------------+"
     echo -e "| ${CYAN}Port No${RESET}   |   ${CYAN}Blocked By${RESET}    |       ${CYAN}Status${RESET}        |"
-    echo -e "+----------+------------------+---------------------+"
+    echo -e  "+----------+------------------+---------------------+"
     echo -e "| ${YELLOW}3478${RESET}      | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}5349${RESET}      | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}19302${RESET}     | UFW, IPTables   |       ${DARK_RED}Blocked${RESET}       |"
@@ -1039,7 +976,7 @@ EOF
     echo -e "| ${YELLOW}3479${RESET}      | UFW             |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}5348${RESET}      | UFW             |       ${DARK_RED}Blocked${RESET}       |"
     echo -e "| ${YELLOW}19306${RESET}     | UFW             |       ${DARK_RED}Blocked${RESET}       |"
-    echo -e "+----------+------------------+---------------------+"
+    echo -e  "+----------+------------------+---------------------+"
 
     echo -e "${GREY}"
 
@@ -1054,12 +991,10 @@ EOF
     echo -e "| ${YELLOW}3479${RESET}    | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "| ${YELLOW}5348${RESET}    | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "| ${YELLOW}19306${RESET}   | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "+---------+-------------+------------+--------------+"
+    echo -e  "+---------+-------------+------------+--------------+"
 
     echo -e "${GREY}"
 }
-
-enable_webrtc
 
 
 ############################################
