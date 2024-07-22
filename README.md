@@ -3,7 +3,7 @@ DNS &amp; WebRTC Leak Shield -
 Protecting online privacy requires guarding against DNS and WebRTC leaks, potential vulnerabilities that can unintentionally expose real IP addresses.
 This guide offers straightforward methods and tools to prevent these leaks across various platforms and environments.
 _________________________________________________________________
-## Automated DNS & WebRTC Leak Shield Configuration
+## ⚙️ Automated DNS & WebRTC Leak Shield Configuration
 
 This is an Automated Configuration Script for DNS, WebRTC Leak Protection on Ubuntu/Debian VPS! This Bash script is designed to simplify the process of setting up and configuring DNS and WebRTC leak protection on your VPS. With an easy-to-use menu interface, you can quickly choose from various DNS providers such as Cloudflare, Google, and Quad9, and enable or disable WebRTC leak protection to secure your VPS and protect your privacy. The script also includes functions to back up and restore configuration files, ensuring that your settings are always safe.
 
