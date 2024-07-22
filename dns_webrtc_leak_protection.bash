@@ -875,15 +875,15 @@ enable_webrtc() {
         clean_line() { printf "\r"; }
         
         for (( elapsed=1; elapsed<=$duration; elapsed++ )); do
-            clean_line
             already_done; remaining; percentage
             sleep 0.1
+            clean_line
         done
         printf "\n"
     }
 
     # Start progress bar with a duration (100 steps)
-    progress_bar 100 &
+    progress_bar 100
 
     # Function to install a package and suppress output
     ensure_package() {
@@ -1022,8 +1022,6 @@ EOF
 
     echo -e "${GREY}"
 }
-
-enable_webrtc
 
 ############################################
 # 8)  - Disable WebRTC Leak Protection
