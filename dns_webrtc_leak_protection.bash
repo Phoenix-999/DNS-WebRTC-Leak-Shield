@@ -860,17 +860,6 @@ restor_to_default() {
 # 7)  - Enable WebRTC Leak Protection
 ############################################
 
-#!/bin/bash
-
-############################################
-# 7)  - Enable WebRTC Leak Protection
-############################################
-#!/bin/bash
-
-############################################
-# 7)  - Enable WebRTC Leak Protection
-############################################
-
 enable_webrtc() {
     clear
     echo -e "${GREY}"
@@ -1039,8 +1028,6 @@ EOF
 
     echo -e "${GREY}"
 }
-
-enable_webrtc
 
 
 ############################################
