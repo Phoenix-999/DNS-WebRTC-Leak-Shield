@@ -713,7 +713,7 @@ _________________________________________________________________
 
 
 <details>
-<summary> Test for DNS & WebRTC Leaks </summary>
+<summary> Test for DNS & WebRTC Leaks ➡️ Click to Open </summary>
 
 ## Testing the DNS & WebRTC Leaks
 
