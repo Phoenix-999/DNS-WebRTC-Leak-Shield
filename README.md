@@ -5,7 +5,7 @@ This guide offers straightforward methods and tools to prevent these leaks acros
 _________________________________________________________________
 
 <details>
-<summary> DNS Leak Shield (Server Side) ➡️ Click to Open </summary>
+<summary> Manual Configuration Guide - DNS Leak Shield (Server Side) ➡️ Click to Open </summary>
 
 ## DNS Leak Shield for VPS Server
 Securing Your VPS with Cloudflare DNS on Linux
@@ -299,7 +299,7 @@ sudo systemctl restart systemd-networkd
 ________________________________________________________________
 
 <details>
-<summary> WebRTC Leak Shield (Server Side) ➡️ Click to Open </summary>
+<summary> Manual Configuration Guide - WebRTC Leak Shield (Server Side) ➡️ Click to Open </summary>
 
 ## WebRTC Leak Shield for VPS Server
 Block WebRTC Traffic, Securing Your VPS by Blocking WebRTC Traffic Using iptables and UFW
@@ -438,7 +438,7 @@ ufw reload
 ________________________________________________________________
 
 <details>
-<summary> WebRTC Leak Shield (MacOS & Linux) ➡️ Click to Open </summary>
+<summary> Manual Configuration Guide - WebRTC Leak Shield (MacOS & Linux) ➡️ Click to Open </summary>
 
 ## WebRTC Leak Shield for MacOS & Linux
 
