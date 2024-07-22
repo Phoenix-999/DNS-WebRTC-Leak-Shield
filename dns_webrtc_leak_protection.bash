@@ -866,25 +866,6 @@ enable_webrtc() {
     echo -e "${GREEN} ▷ WebRTC Leak Protection Setup...${NC}"
     echo -e "${GREY}"
 
-    # Progress bar function
-    progress_bar() {
-        local duration=$1
-        already_done() { for ((done=0; done<$elapsed; done++)); do printf "█"; done }
-        remaining() { for ((remain=$elapsed; remain<$duration; remain++)); do printf " "; done }
-        percentage() { printf "| %s%%" $(( ($elapsed*100)/($duration*1) )) }
-        clean_line() { printf "\r"; }
-        
-        for (( elapsed=1; elapsed<=$duration; elapsed++ )); do
-            already_done; remaining; percentage
-            sleep 0.1
-            clean_line
-        done
-        printf "\n"
-    }
-
-    # Start progress bar with a duration (100 steps)
-    progress_bar 100
-
     # Function to install a package and suppress output
     ensure_package() {
         local PACKAGE=$1
