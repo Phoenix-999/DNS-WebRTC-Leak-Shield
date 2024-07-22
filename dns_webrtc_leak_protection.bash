@@ -859,9 +859,6 @@ restor_to_default() {
 ############################################
 # 7)  - Enable WebRTC Leak Protection
 ############################################
-############################################
-# 7)  - Enable WebRTC Leak Protection
-############################################
 enable_webrtc() {
     clear
     echo -e "${GREY}"
@@ -884,15 +881,13 @@ enable_webrtc() {
             echo -e "\e[3m${PURPLE}  • UFW not found. Installing UFW...\e[0m${NC}"
             sudo apt-get update &> /dev/null
             ensure_package "ufw"  # Install ufw if not found
+        else
+            echo -e "\e[3m${PURPLE}  • UFW is already installed.\e[0m${NC}"
         fi
     }
 
-    # Suppress output from apt-get update
-    echo -e "\e[3m${PURPLE}  • Updating package list...\e[0m${NC}"
-    sudo apt-get update &> /dev/null
-
     # Ensure ufw is installed
-    check_and_install_ufw  # <-- Added this line to check and install ufw
+    check_and_install_ufw  # <-- Ensure ufw is installed
 
     # Suppress output from other apt-get commands
     echo -e "\e[3m${PURPLE}  • Ensuring essential packages are installed...\e[0m${NC}"
@@ -1010,7 +1005,6 @@ EOF
 
     echo -e "${GREY}"
 }
-
 
 ############################################
 # 8)  - Disable WebRTC Leak Protection
