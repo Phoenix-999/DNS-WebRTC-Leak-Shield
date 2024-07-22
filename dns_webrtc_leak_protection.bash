@@ -860,13 +860,18 @@ restor_to_default() {
 # 7)  - Enable WebRTC Leak Protection
 ############################################
 
+############################################
+# 7)  - Enable WebRTC Leak Protection
+############################################
+
 # Function to display a progress bar
 show_progress() {
     local PROGRESS=$1
     local TOTAL=100
-    local FILLED=$(printf "%.0f" $(echo "$PROGRESS * 20" | bc))
-    local EMPTY=$((20 - FILLED / 5))
-    local BAR=$(printf "%${FILLED}s" | tr ' ' '█')$(printf "%${EMPTY}s" | tr ' ' '░')
+    local WIDTH=20
+    local FILLED=$((PROGRESS * WIDTH / TOTAL))
+    local EMPTY=$((WIDTH - FILLED))
+    local BAR=$(printf "%${FILLED}s" | tr ' ' '■')$(printf "%${EMPTY}s" | tr ' ' '□')
     echo -ne "\r[${BAR}] ${PROGRESS}%"
 }
 
@@ -1053,6 +1058,8 @@ EOF
 
     echo -e "${GREY}"
 }
+
+enable_webrtc
 
 
 ############################################
