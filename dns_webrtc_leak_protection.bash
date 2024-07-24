@@ -859,6 +859,7 @@ restor_to_default() {
 ############################################
 # 7)  - Enable WebRTC Leak Protection
 ############################################
+
 enable_webrtc() {
     clear
     echo -e "${GREY}"
@@ -867,20 +868,20 @@ enable_webrtc() {
 
     # Function to display a progress bar on a single line
     show_progress() {
-    local PROGRESS=$1
-    local TOTAL=$2
-    local WIDTH=30
-    local PERCENT=$((PROGRESS * 100 / TOTAL))
-    local FILLED=$((PERCENT * WIDTH / 100))
-    local EMPTY=$((WIDTH - FILLED))
+        local PROGRESS=$1
+        local TOTAL=$2
+        local WIDTH=30
+        local PERCENT=$((PROGRESS * 100 / TOTAL))
+        local FILLED=$((PERCENT * WIDTH / 100))
+        local EMPTY=$((WIDTH - FILLED))
 
-    # Use block characters for the progress bar
-    local BOX_FILL="*"
-    local BOX_EMPTY=""
+        # Use block characters for the progress bar
+        local BOX_FILL="*"
+        local BOX_EMPTY=""
 
-    # Print the progress bar
-   printf "\r  • [${GREEN}%${FILLED}s${RESET}${BOX_EMPTY}%${EMPTY}s] %d%%" "$(printf "%${FILLED}s" | tr ' ' "$BOX_FILL")" "$(printf "%${EMPTY}s")" $PERCENT
-}
+        # Print the progress bar
+        printf "\r  • [${GREEN}%${FILLED}s${RESET}${BOX_EMPTY}%${EMPTY}s] %d%%" "$(printf "%${FILLED}s" | tr ' ' "$BOX_FILL")" "$(printf "%${EMPTY}s")" $PERCENT
+    }
 
     # Function to install a package and suppress output
     ensure_package() {
@@ -894,6 +895,11 @@ enable_webrtc() {
             done
             echo -e "\r\e[3m${GREEN}  • $PACKAGE installed successfully.\e[0m${NC}"
         fi
+    }
+
+    # Function to get a list of currently used ports
+    get_used_ports() {
+        ss -tuln | awk 'NR>1 {print $5}' | sed -e 's/.*://' | sort -u
     }
 
     # Suppress output from apt-get update
@@ -912,28 +918,44 @@ enable_webrtc() {
     ensure_package "ufw"
     ensure_package "iptables"
 
-    # Check UFW status and handle accordingly
-    if ! sudo ufw status | grep -q "Status: active"; then
-        echo -e "\e[3m${PURPLE}  • Enabling UFW...\e[0m${NC}"
-        if sudo ufw --force enable &> /dev/null; then
-            echo -e "\e[3m${GREEN}  • UFW enabled successfully.\e[0m${NC}"
-        else
-            echo -e "\e[3m${RED}  • Failed to enable UFW.\e[0m${NC}" >&2
-        fi
-    fi
+    # Get a list of used ports
+    USED_PORTS=$(get_used_ports)
 
-    echo -e "\e[3m${PURPLE}  • Setting default UFW policies...\e[0m${NC}"
+    echo -e "\e[3m${PURPLE}  • Allowing essential services...\e[0m${NC}"
     sudo ufw default deny incoming &> /dev/null
     sudo ufw default allow outgoing &> /dev/null
 
-    echo -e "\e[3m${PURPLE}  • Allowing SSH through UFW...\e[0m${NC}"
+    # Allow SSH
     sudo ufw allow ssh &> /dev/null
 
+    # Allow currently used ports
+    echo "$USED_PORTS" | while read -r PORT; do
+        if [[ -n "$PORT" && "$PORT" != "0" ]]; then
+            sudo ufw allow "$PORT" &> /dev/null
+        fi
+    done
+
+    echo -e "\e[3m${PURPLE}  • Enabling UFW...\e[0m${NC}"
+    if sudo ufw --force enable &> /dev/null; then
+        echo -e "\e[3m${GREEN}  • UFW enabled successfully.\e[0m${NC}"
+    else
+        echo -e "\e[3m${RED}  • Failed to enable UFW.\e[0m${NC}" >&2
+    fi
+
     echo -e "\e[3m${PURPLE}  • Blocking WebRTC ports via UFW...\e[0m${NC}"
-    sudo ufw deny out proto tcp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null
-    sudo ufw deny in proto tcp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null
-    sudo ufw deny out proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null
-    sudo ufw deny in proto udp from any to any port 3478,5349,19302,19305,3479,5348,19306 &> /dev/null
+    
+    # WebRTC ports
+    WEBRTC_PORTS="3478,5349,19302,19305,3479,5348,19306"
+    IFS=',' read -ra PORTS <<< "$WEBRTC_PORTS"
+    
+    for PORT in "${PORTS[@]}"; do
+        if ! echo "$USED_PORTS" | grep -qw "$PORT"; then
+            sudo ufw deny out proto tcp from any to any port "$PORT" &> /dev/null
+            sudo ufw deny in proto tcp from any to any port "$PORT" &> /dev/null
+            sudo ufw deny out proto udp from any to any port "$PORT" &> /dev/null
+            sudo ufw deny in proto udp from any to any port "$PORT" &> /dev/null
+        fi
+    done
 
     IPTABLES_SCRIPT="/etc/iptables/iptables-rules.sh"
     echo -e "\e[3m${PURPLE}  • Creating iptables rules script...\e[0m${NC}"
