@@ -9,7 +9,7 @@ This is an Automated Configuration Script for DNS, WebRTC Leak Protection on Ubu
 
 ## Prerequisites:
 
-Ubuntu & Debian
+Ubuntu
   * Linux `AMD64` Processor Architecture
   * Linux `ARM64` Processor Architecture
   * Ensure that the sudo and wget packages are installed on your system:
