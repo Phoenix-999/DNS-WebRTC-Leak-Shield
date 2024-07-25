@@ -14,9 +14,10 @@
 
 RED='\033[0;31m'
 DARK_RED='\033[1;31m'
-BOLD_RED="\033[1;31m"
+LESS_SATURATED_RED='\033[0;31m'
+BOLD_RED='\033[1;31m'
 YELLOW='\033[1;33m'
-DARK_YELLOW="\033[0;33m"
+DARK_YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 DARK_BLUE='\033[1;34m'
 CYAN='\033[0;36m'
@@ -25,13 +26,189 @@ GREEN='\033[0;32m'
 NEON_GREEN='\033[1;38;5;154m'
 PURPLE='\033[0;35m'
 GREY='\033[0;37m'
+DARK_GRAY='\033[1;30m'
+DARK_SILVER='\033[38;5;244m'
+SPACE_GRAY='\033[38;5;238m'
+TIN_DARK_SILVER='\033[38;5;250m'
+BOLD='\033[1m'
 PLAIN='\033[0m'
-BOLD="\033[1m"
-RESET="\033[0m"
+RESET='\033[0m'
 NC='\033[0m'  # No Color
 
 # URL
 URL="github.com/Phoenix-999"
+
+#############################################
+# Function to display a unified progress bar
+#############################################
+show_progress() {
+    local progress=$1
+    local total_steps=$2
+    local step_message=$3
+    local bar_width=34
+
+    # Calculate percentage
+    local pct=$(( progress * 100 / total_steps ))
+    local num_stars=$(( progress * bar_width / total_steps ))
+    local num_spaces=$(( bar_width - num_stars ))
+
+    # Move cursor up two lines and clear the lines to update progress
+    if [ "$progress" -ne 1 ]; then
+        printf "\033[A\033[K\033[A\033[K"
+    fi
+
+    # Print the progress bar
+    printf "${DARK_SILVER}   ["
+    for ((i=0; i<num_stars; i++)); do
+        printf "${GREEN}*"
+    done
+    for ((i=0; i<num_spaces; i++)); do
+        printf "-"
+    done
+    printf "${DARK_SILVER}] ${NEON_GREEN}${pct}%%${RESET}\n"
+
+    # Print the step message on the next line
+    printf "   ${DARK_SILVER}${step_message}${RESET}\n"
+
+    # Move cursor to the beginning of the next line if progress is complete
+    if [ "$pct" -eq 100 ]; then
+        echo ""
+    fi
+}
+
+#####################################################
+# Function to check and install jq if not installed
+#####################################################
+check_jq() {
+    clear
+    echo -e "${DARK_SILVER}${BOLD} ____________________________________________${NC}"
+    local steps=2
+    local step=1
+    local step_message="  • Checking jq installation"
+    echo -e "${DARK_BLUE}  • Server Assessment & Script Preparation${NC}"
+    echo -e "${DARK_YELLOW}  • Please Wait...${NC}"
+    show_progress $step $steps "$step_message"
+
+
+    if ! command -v jq &> /dev/null; then
+        step_message="  • Installing jq"
+        echo -e "${PURPLE}\n  • jq not found. Installing jq...${NC}"
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get update > /dev/null 2>&1
+            sudo apt-get install -y jq > /dev/null 2>&1
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y jq > /dev/null 2>&1
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y jq > /dev/null 2>&1
+        elif command -v pacman &> /dev/null; then
+            sudo pacman -Sy jq > /dev/null 2>&1
+        else
+            echo -e "${RED}  • Error: Package manager not supported. Install jq manually.${NC}"
+            exit 1
+        fi
+        step=2
+        show_progress $step $steps "$step_message"
+    fi
+
+    # Complete progress bar
+    step=$steps
+    step_message="  • jq check and installation complete"
+    show_progress $step $steps "$step_message"
+    echo -e "\n${PURPLE}  • jq check and installation complete.${NC}"
+    echo -e "${DARK_SILVER}${BOLD} ____________________________________________${NC}"
+}
+
+##############################################
+# Function to gather VPS details
+##############################################
+gather_vps_details() {
+    local steps=6
+    local step=1
+
+    clear
+    echo -e "${GREY}"
+    echo -e "${DARK_BLUE}   • Server Assessment & Script Preparation${NC}"
+    echo -e "${DARK_YELLOW}   • Please Wait...${NC}"
+
+    # VPS Name
+    step_message="• Gathering VPS Name"
+    VPS_NAME=$(hostname)
+    show_progress $step $steps "$step_message"
+    sleep 1
+    ((step++))
+
+    # System distribution and release info
+    step_message="• Gathering System Distribution Info"
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        DISTRIBUTOR_ID=$ID
+        RELEASE=$VERSION_ID
+    else
+        DISTRIBUTOR_ID="Unknown"
+        RELEASE="Unknown"
+    fi
+    show_progress $step $steps "$step_message"
+    sleep 1
+    ((step++))
+
+    # VPS IPv4 Address
+    step_message="• Gathering VPS IPv4 Address"
+    VPS_IPV4=$(hostname -I | awk '{print $1}')
+    show_progress $step $steps "$step_message"
+    sleep 1
+    ((step++))
+
+    # VPS IPv6 Address
+    step_message="• Gathering VPS IPv6 Address"
+    VPS_IPV6=$(ip -6 addr show scope global | grep inet6 | awk '{print $2}' | cut -d/ -f1 | head -n 1)
+    show_progress $step $steps "$step_message"
+    sleep 1
+    ((step++))
+
+    # Location of the server (using ipinfo.io)
+    step_message="• Gathering Server Location"
+    IP=$(curl -s https://ipinfo.io/ip)
+    LOCATION_JSON=$(curl -s "https://ipinfo.io/${IP}?token=${IPINFO_TOKEN}")
+    CITY=$(echo "$LOCATION_JSON" | jq -r '.city // "Unknown"')
+    COUNTRY=$(echo "$LOCATION_JSON" | jq -r '.country // "Unknown"')
+    LOCATION="${CITY}, ${COUNTRY}"
+    show_progress $step $steps "$step_message"
+    sleep 1
+    ((step++))
+
+    # Check if server and packages are up to date
+    step_message="• Checking Server & Packages Update Status"
+    sudo apt update > /dev/null 2>&1
+    UPGRADABLE=$(apt list --upgradable 2> /dev/null | grep -v "Listing" | wc -l)
+    if [ "$UPGRADABLE" -eq 0 ]; then
+        STATUS="${NEON_GREEN}√ UP TO DATE${NC}"
+    else
+        STATUS="${BOLD_RED}✕ NOT UP TO DATE${NC}"
+    fi
+    show_progress $step $steps "$step_message"
+    sleep 1
+    ((step++))
+    echo -e "${GREY}"
+    clear
+
+    # Print details in a formatted table layout
+    echo -e "${SPACE_GRAY}${BOLD} ____________________________________________${NC}"
+    echo -e "${DARK_SILVER}            »»——— VPS Details ———««             ${NC}"
+    echo -e "${SPACE_GRAY}${BOLD} ____________________________________________${NC}"
+    printf "${YELLOW}  • ${TIN_DARK_SILVER}%-15s${NC} | ${DARK_YELLOW}%-30s${NC}\n" "IPv4 Address" "$VPS_IPV4"
+    printf "${YELLOW}  • ${TIN_DARK_SILVER}%-15s${NC} | ${DARK_YELLOW}%-30s${NC}\n" "IPv6 Address" "$VPS_IPV6"
+    printf "${YELLOW}  • ${TIN_DARK_SILVER}%-15s${NC} | ${DARK_YELLOW}%-30s${NC}\n" "Location" "$LOCATION"
+    printf "${YELLOW}  • ${TIN_DARK_SILVER}%-15s${NC} | ${DARK_YELLOW}%-30s${NC}\n" "Distributor ID" "$DISTRIBUTOR_ID"
+    printf "${YELLOW}  • ${TIN_DARK_SILVER}%-15s${NC} | ${DARK_YELLOW}%-30s${NC}\n" "Release" "$RELEASE"
+    printf "${YELLOW}  • ${TIN_DARK_SILVER}%-15s${NC} | ${STATUS}${NC}\n" "Server Status"
+    echo -e "${SPACE_GRAY}${BOLD} ____________________________________________${NC}"
+}
+
+# Call the function to check and install jq
+check_jq
+
+# Call the function to gather and display VPS details
+gather_vps_details
 
 ##############################################
 # Function to back up configuration files
@@ -68,7 +245,6 @@ backup_config_files
 ##############################################
 
 print_introduction() {
-    clear
     echo -e "${GREY}"
     echo -e "${PURPLE}╭━━━━━━━━━━━━━━━━━━━━∙⋆⋅⋆∙━━━━━━━━━━━━━━━━━━━╮${NC}"
     echo -e "${BLUE}\033[1m    ✭✭✭✭✭✭ DNS & WebRTC Leak Shield ✭✭✭✭✭✭ \033[0m${NC}"
@@ -154,7 +330,6 @@ options dnssec dnssec-ok edns0 trust-ad rotate no-check-names inet6 timeout 2
 
 # Primary DNS server IP address (Cloudflare DNS)
 nameserver 1.0.0.1
-nameserver 1.1.1.1
 
 # Specify default domain for DNS search (optional)
 # search .
@@ -1011,10 +1186,10 @@ EOF
     echo -e "+-----------------------+------------+--------------+"
     echo -e "| ${CYAN}Port No${RESET}               | ${CYAN}Blocked By${RESET} |    ${CYAN}Status${RESET}    |"
     echo -e "+-----------------------+------------+--------------+"
-    echo -e "| ${YELLOW}10.0.0.0/8${RESET}            | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}172.16.0.0/12${RESET}         | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}192.168.0.0/16${RESET}        | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}169.254.0.0/16${RESET}        | IPTables   |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}10.0.0.0/8${RESET}            |  IPTables  |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}172.16.0.0/12${RESET}         |  IPTables  |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}192.168.0.0/16${RESET}        |  IPTables  |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}169.254.0.0/16${RESET}        |  IPTables  |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "+-----------------------+------------+--------------+"
 
     echo -e "${GREY}"
@@ -1038,13 +1213,13 @@ EOF
     echo -e "+---------+-------------+------------+--------------+"
     echo -e "| ${CYAN}Port No${RESET} |  ${CYAN}Protocol${RESET}   | ${CYAN}Blocked By${RESET} |    ${CYAN}Status${RESET}    |"
     echo -e "+---------+-------------+------------+--------------+"
-    echo -e "| ${YELLOW}3478${RESET}    | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}5349${RESET}    | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}19302${RESET}   | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}19305${RESET}   | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}3479${RESET}    | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}5348${RESET}    | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
-    echo -e "| ${YELLOW}19306${RESET}   | TCP, UDP    | UFW        |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}3478${RESET}    |   TCP, UDP  |     UFW    |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}5349${RESET}    |   TCP, UDP  |     UFW    |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}19302${RESET}   |   TCP, UDP  |     UFW    |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}19305${RESET}   |   TCP, UDP  |     UFW    |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}3479${RESET}    |   TCP, UDP  |     UFW    |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}5348${RESET}    |   TCP, UDP  |     UFW    |    ${DARK_RED}Blocked${RESET}   |"
+    echo -e "| ${YELLOW}19306${RESET}   |   TCP, UDP  |     UFW    |    ${DARK_RED}Blocked${RESET}   |"
     echo -e "+---------+-------------+------------+--------------+"
 
     echo -e "${GREY}"
@@ -1106,10 +1281,10 @@ disable_webrtc() {
     echo -e "+-----------------------+------------+--------------+"
     echo -e "| ${CYAN}IP Range${RESET}              | ${CYAN}Blocked By${RESET} |    ${CYAN}Status${RESET}    |"
     echo -e "+-----------------------+------------+--------------+"
-    echo -e "| ${YELLOW}10.0.0.0/8${RESET}            | IPTables   |     ${GREEN}Open${RESET}     |"
-    echo -e "| ${YELLOW}172.16.0.0/12${RESET}         | IPTables   |     ${GREEN}Open${RESET}     |"
-    echo -e "| ${YELLOW}192.168.0.0/16${RESET}        | IPTables   |     ${GREEN}Open${RESET}     |"
-    echo -e "| ${YELLOW}169.254.0.0/16${RESET}        | IPTables   |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}10.0.0.0/8${RESET}            |  IPTables  |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}172.16.0.0/12${RESET}         |  IPTables  |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}192.168.0.0/16${RESET}        |  IPTables  |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}169.254.0.0/16${RESET}        |  IPTables  |     ${GREEN}Open${RESET}     |"
     echo -e "+-----------------------+------------+--------------+"
 
     echo -e "${GREY}"
@@ -1118,13 +1293,13 @@ disable_webrtc() {
     echo -e  "+----------+------------------+---------------------+"
     echo -e "| ${CYAN}Port No${RESET}   |   ${CYAN}Blocked By${RESET}    |       ${CYAN}Status${RESET}        |"
     echo -e  "+----------+------------------+---------------------+"
-    echo -e "| ${YELLOW}3478${RESET}      | UFW, IPTables   |         ${GREEN}Open${RESET}       |"
-    echo -e "| ${YELLOW}5349${RESET}      | UFW, IPTables   |         ${GREEN}Open${RESET}       |"
-    echo -e "| ${YELLOW}19302${RESET}     | UFW, IPTables   |         ${GREEN}Open${RESET}       |"
-    echo -e "| ${YELLOW}19305${RESET}     | UFW             |         ${GREEN}Open${RESET}       |"
-    echo -e "| ${YELLOW}3479${RESET}      | UFW             |         ${GREEN}Open${RESET}       |"
-    echo -e "| ${YELLOW}5348${RESET}      | UFW             |         ${GREEN}Open${RESET}       |"
-    echo -e "| ${YELLOW}19306${RESET}     | UFW             |         ${GREEN}Open${RESET}       |"
+    echo -e "| ${YELLOW}3478${RESET}      | UFW, IPTables   |         ${GREEN}Open${RESET}        |"
+    echo -e "| ${YELLOW}5349${RESET}      | UFW, IPTables   |         ${GREEN}Open${RESET}        |"
+    echo -e "| ${YELLOW}19302${RESET}     | UFW, IPTables   |         ${GREEN}Open${RESET}        |"
+    echo -e "| ${YELLOW}19305${RESET}     | UFW             |         ${GREEN}Open${RESET}        |"
+    echo -e "| ${YELLOW}3479${RESET}      | UFW             |         ${GREEN}Open${RESET}        |"
+    echo -e "| ${YELLOW}5348${RESET}      | UFW             |         ${GREEN}Open${RESET}        |"
+    echo -e "| ${YELLOW}19306${RESET}     | UFW             |         ${GREEN}Open${RESET}        |"
     echo -e  "+----------+------------------+---------------------+"
 
     echo -e "${GREY}"
@@ -1133,13 +1308,13 @@ disable_webrtc() {
     echo -e "+---------+-------------+------------+--------------+"
     echo -e "| ${CYAN}Port No${RESET} |  ${CYAN}Protocol${RESET}   | ${CYAN}Blocked By${RESET} |    ${CYAN}Status${RESET}    |"
     echo -e "+---------+-------------+------------+--------------+"
-    echo -e "| ${YELLOW}3478${RESET}    | TCP, UDP    | UFW        |     ${GREEN}Open${RESET}      |"
-    echo -e "| ${YELLOW}5349${RESET}    | TCP, UDP    | UFW        |     ${GREEN}Open${RESET}      |"
-    echo -e "| ${YELLOW}19302${RESET}   | TCP, UDP    | UFW        |     ${GREEN}Open${RESET}      |"
-    echo -e "| ${YELLOW}19305${RESET}   | TCP, UDP    | UFW        |     ${GREEN}Open${RESET}      |"
-    echo -e "| ${YELLOW}3479${RESET}    | TCP, UDP    | UFW        |     ${GREEN}Open${RESET}      |"
-    echo -e "| ${YELLOW}5348${RESET}    | TCP, UDP    | UFW        |     ${GREEN}Open${RESET}      |"
-    echo -e "| ${YELLOW}19306${RESET}   | TCP, UDP    | UFW        |     ${GREEN}Open${RESET}      |"
+    echo -e "| ${YELLOW}3478${RESET}    |   TCP, UDP  |     UFW    |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}5349${RESET}    |   TCP, UDP  |     UFW    |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}19302${RESET}   |   TCP, UDP  |     UFW    |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}19305${RESET}   |   TCP, UDP  |     UFW    |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}3479${RESET}    |   TCP, UDP  |     UFW    |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}5348${RESET}    |   TCP, UDP  |     UFW    |     ${GREEN}Open${RESET}     |"
+    echo -e "| ${YELLOW}19306${RESET}   |   TCP, UDP  |     UFW    |     ${GREEN}Open${RESET}     |"
     echo -e  "+---------+-------------+------------+--------------+"
 
     echo -e "${GREY}"
