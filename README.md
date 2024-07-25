@@ -9,7 +9,7 @@ This is an Automated Configuration Script for DNS, WebRTC Leak Protection on Ubu
 
 ## Prerequisites:
 
-Ubuntu - 24.04 LTS · 22.04.4 LTS · 20.04.6 LTS · 18.04.6 LTS
+Ubuntu · `24.04 LTS` - `22.04.4 LTS` - `20.04.6 LTS` - `18.04.6 LTS`
 
   * Linux `AMD64` Processor Architecture
   * Linux `ARM64` Processor Architecture
