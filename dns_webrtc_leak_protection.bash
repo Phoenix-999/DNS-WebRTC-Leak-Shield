@@ -1261,13 +1261,14 @@ disable_webrtc() {
 
     # Remove iptables rules
     echo -e "\e[3m${PURPLE}  • Removing specific iptables rules...\e[0m${NC}"
-    sudo iptables -D OUTPUT -d 10.0.0.0/8 -j DROP 2> /dev/null
-    sudo iptables -D OUTPUT -d 172.16.0.0/12 -j DROP 2> /dev/null
-    sudo iptables -D OUTPUT -d 192.168.0.0/16 -j DROP 2> /dev/null
-    sudo iptables -D OUTPUT -d 169.254.0.0/16 -j DROP 2> /dev/null
-    sudo iptables -D OUTPUT -p tcp --dport 10000:20000 -j REJECT 2> /dev/null
-    sudo iptables -D OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j REJECT 2> /dev/null
-    sudo ip6tables -D OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j REJECT 2> /dev/null
+    sudo iptables -D OUTPUT -d 10.0.0.0/8 -j ACCEPT 2> /dev/null
+    sudo iptables -D OUTPUT -d 172.16.0.0/12 -j ACCEPT 2> /dev/null
+    sudo iptables -D OUTPUT -d 192.168.0.0/16 -j ACCEPT 2> /dev/null
+    sudo iptables -D OUTPUT -d 169.254.0.0/16 -j ACCEPT 2> /dev/null
+    sudo iptables -A OUTPUT -p tcp --dport 10000:20000 -j ACCEPT 2> /dev/null
+    sudo iptables -A OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j ACCEPT 2> /dev/null
+    sudo ip6tables -A OUTPUT -p udp --match multiport --dports 3478,5349,19302 -j ACCEPT 2> /dev/null
+
 
     # Reload UFW to apply changes
     echo -e "\e[3m${PURPLE}  • Reloading UFW to apply changes...\e[0m${NC}"
