@@ -1,12 +1,42 @@
 #!/bin/bash
 
-#******************************************************************#
-# Title: DNS & WebRTC Leak Shield
-# Description: Prevent DNS & WebRTC Leak in VPS
-# Author: Phoenix-999
-# Link: github.com/Phoenix-999
-# Date: July 21, 2024
-#******************************************************************#
+########################################################################################
+# Project:   DNS & WebRTC Leak Shield
+# Author:    Phoenix-999
+# Repository: https://github.com/Phoenix-999
+#
+# Purpose:
+#   Harden VPS environments by preventing DNS leaks and WebRTC local IP exposure.
+#   Implements nftables-based firewall rules, resolver hardening, and systemd
+#   integration to ensure DNS privacy, integrity, and resistance against leaks.
+#
+# Features:
+#   - Enforces secure DNS resolution via DoH/DoT (Cloudflare, Google, Quad9).
+#   - Blocks plaintext DNS and local/private IP leaks.
+#   - Optional WebRTC leak protection (STUN/TURN and private IP ranges).
+#   - Integrates with systemd-resolved for persistence across reboots.
+#   - Designed for VPS use: protects SSH, VPN tunnels, and console access.
+#
+# Usage:
+#   Run interactively with root privileges:
+#      sudo bash dns_webrtc_leak_protection.sh
+#
+# Requirements:
+#   - Linux VPS with systemd
+#   - nftables, curl, jq (installed automatically if missing)
+#
+# Notes:
+#   - Script modifies DNS configuration and firewall rules in an isolated manner.
+#   - Existing nftables rules are preserved; only leak protection chains are applied.
+#   - Use the menu system to enable/disable protections or restore defaults.
+#
+# License:
+#   MIT License (free to use, modify, and distribute with attribution).
+#
+# Created:   2024-07-21
+# Updated:   2025-09-27
+########################################################################################
+
 
 ###############################
 # Define ANSI color codes
@@ -1123,11 +1153,16 @@ table inet webrtc_shield {
         udp dport { 3478, 5349, 19302, 19305, 3479, 5348, 19306, 19307, 19308, 19309 } drop
         tcp dport { 3478, 5349, 19302, 19305, 3479, 5348, 19306, 19307, 19308, 19309 } drop
 
-        # Block private/local IP ranges (to prevent WebRTC local IP leaks)
+        # Block local/private IP ranges (to prevent WebRTC leaks)
+        # Exceptions added to keep VPS web console/metadata working
         ip daddr 10.0.0.0/8 drop
         ip daddr 172.16.0.0/12 drop
         ip daddr 192.168.0.0/16 drop
-        ip daddr 169.254.0.0/16 drop
+
+        # Allow metadata & provider console services (often on 169.254.0.0/16)
+        ip daddr 169.254.0.0/16 accept
+
+        # IPv6 local ranges
         ip6 daddr fc00::/7 drop
         ip6 daddr fe80::/10 drop
     }
@@ -1160,6 +1195,7 @@ EOF
     echo -e " ✓ Protection:    ${NEON_GREEN}Enabled (active nftables rules)${NC}"
     echo -e " ✓ Ports Blocked: ${CYAN}3478, 5349, 19302–19309 (STUN/TURN)${NC}"
     echo -e " ✓ Local IPs:     ${CYAN}Private/Link-local ranges blocked${NC}"
+    echo -e " ✓ Exceptions:    ${GREEN}169.254.0.0/16 allowed (console/metadata)${NC}"
     echo -e " ✓ VPN Safety:    ${GREEN}No impact on tun0/wg0${NC}"
     echo -e " ✓ SSH Safety:    ${GREEN}Port 22 untouched${NC}"
     echo -e "${BLUE} ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
@@ -1219,10 +1255,12 @@ verify_webrtc() {
     # Check if nftables table exists
     if sudo nft list tables 2>/dev/null | grep -q "webrtc_shield"; then
         TABLE_STATUS="${NEON_GREEN}Loaded${NC}"
-        RANGE_STATUS="\033[1;31mBlocked\033[0m"   # Red
+        BLOCKED="\033[1;31mBlocked\033[0m"   # Red
+        OPEN="\033[1;32mOpen\033[0m"        # Green
     else
         TABLE_STATUS="${BOLD_RED}Missing${NC}"
-        RANGE_STATUS="\033[1;32mOpen\033[0m"      # Green
+        BLOCKED="\033[1;32mOpen\033[0m"
+        OPEN="\033[1;32mOpen\033[0m"
     fi
 
     # Ports & IP ranges
@@ -1237,20 +1275,18 @@ verify_webrtc() {
 
     echo -e "\n   ${BOLD_CYAN}Local IP Ranges${NC}"
     echo -e "${BLUE} ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e " • 10.0.0.0/8       $RANGE_STATUS"
-    echo -e " • 172.16.0.0/12    $RANGE_STATUS"
-    echo -e " • 192.168.0.0/16   $RANGE_STATUS"
-    echo -e " • 169.254.0.0/16   $RANGE_STATUS"
-    echo -e " • fc00::/7         $RANGE_STATUS"
-    echo -e " • fe80::/10        $RANGE_STATUS"
+    echo -e " • 10.0.0.0/8       $BLOCKED"
+    echo -e " • 172.16.0.0/12    $BLOCKED"
+    echo -e " • 192.168.0.0/16   $BLOCKED"
+    echo -e " • 169.254.0.0/16   $OPEN   (console safe)"
+    echo -e " • fc00::/7         $BLOCKED"
+    echo -e " • fe80::/10        $BLOCKED"
 
     echo -e "${BLUE} ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e " • VPN Safety:   ${GREEN}tun0 / wg0 unaffected${NC}"
     echo -e " • SSH Safety:   ${GREEN}TCP port 22 open${NC}"
     echo -e "${BLUE} ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
 }
-
-
 
 ##############################################################
 # Function to handle user input and execute the chosen option
