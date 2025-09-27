@@ -28,7 +28,7 @@ sudo -i
 ### Download and Run the Script
 To download, set executable permissions, and run the script, use the following one-liner command:
 ```bash
-mkdir -p ~/DNS_WebRTC_Shield && wget -qO ~/DNS_WebRTC_Shield/dns_webrtc_leak_protection.bash "https://raw.githubusercontent.com/Phoenix-999/DNS-WebRTC-Leak-Shield/main/dns_webrtc_leak_protection.bash" && chmod +x ~/DNS_WebRTC_Shield/dns_webrtc_leak_protection.bash && sudo ~/DNS_WebRTC_Shield/dns_webrtc_leak_protection.bash
+sudo -i bash -c 'mkdir -p /root/shield/dns-webrtc-shield && cd /root/shield/dns-webrtc-shield && wget -qO dns_webrtc_leak_protection.sh "https://raw.githubusercontent.com/Phoenix-999/DNS-WebRTC-Leak-Shield/main/dns_webrtc_leak_protection.sh" && chmod +x dns_webrtc_leak_protection.sh && ./dns_webrtc_leak_protection.sh'
 ```
 #
 ### Menu Image
